@@ -61,32 +61,44 @@ const ChatContainer: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full w-full max-w-3xl mx-auto">
-      <div className="flex items-center justify-center py-4 border-b border-black/10 dark:border-white/10">
-        <h1 className="text-2xl font-semibold">Wahit AI</h1>
-      </div>
-      
-      <div 
-        ref={pesanContainerRef}
-        className="flex-1 p-4 overflow-y-auto"
-      >
-        {daftarPesan.map((pesan) => (
-          <ChatMessage key={pesan.id} pesan={pesan} />
-        ))}
-        
-        {sedangMengirim && (
-          <div className="flex items-center space-x-2 text-foreground/70 pl-4">
-            <div className="animate-pulse">Wahit AI sedang mengetik</div>
-            <div className="flex space-x-1">
-              <div className="w-2 h-2 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: '200ms' }}></div>
-              <div className="w-2 h-2 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: '400ms' }}></div>
+    <div className="flex flex-col h-full w-full">
+      <div className="relative flex-1 overflow-hidden">
+        <div 
+          ref={pesanContainerRef}
+          className="absolute inset-0 px-4 py-6 overflow-y-auto scroll-smooth"
+        >
+          {daftarPesan.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center px-4">
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-blue-500 to-purple-600 shadow-lg flex items-center justify-center mb-6">
+                <span className="text-white text-2xl font-bold">W</span>
+              </div>
+              <h2 className="text-xl font-bold mb-2 text-foreground/90">Selamat datang di Wahit AI</h2>
+              <p className="text-sm text-foreground/60 max-w-md">
+                Tanyakan apapun dan dapatkan jawaban instan. Saya siap membantu Anda dengan berbagai pertanyaan.
+              </p>
             </div>
-          </div>
-        )}
+          ) : (
+            daftarPesan.map((pesan) => (
+              <ChatMessage key={pesan.id} pesan={pesan} />
+            ))
+          )}
+          
+          {sedangMengirim && (
+            <div className="flex items-center space-x-3 text-foreground/70 pl-4 mt-3 animate-fadeIn">
+              <div className="flex h-8 items-center rounded-full bg-black/5 dark:bg-white/5 px-3 py-1">
+                <div className="flex space-x-1 items-center">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '200ms' }}></div>
+                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '400ms' }}></div>
+                  <span className="ml-2 text-xs font-medium">Wahit AI sedang mengetik</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       
-      <div className="p-4 border-t border-black/10 dark:border-white/10">
+      <div className="px-4 pt-3 pb-4 border-t border-black/5 dark:border-white/5 bg-gradient-to-b from-transparent to-background/40 backdrop-blur-sm">
         <ChatInput mengirimPesan={handleKirimPesan} sedangMengirim={sedangMengirim} />
       </div>
     </div>
