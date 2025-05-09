@@ -1,13 +1,24 @@
 'use client';
 
 import React, { useState, KeyboardEvent } from 'react';
+import ModelSelector from './ModelSelector';
+import { ModelAIType } from '../types/chat';
 
 interface ChatInputProps {
   mengirimPesan: (pesan: string) => void;
   sedangMengirim: boolean;
+  modelTerpilih: string;
+  mengubahModel: (modelId: string) => void;
+  daftarModel: ModelAIType[];
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ mengirimPesan, sedangMengirim }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ 
+  mengirimPesan, 
+  sedangMengirim,
+  modelTerpilih,
+  mengubahModel,
+  daftarModel
+}) => {
   const [pesan, setPesan] = useState<string>('');
   
   const handleKirim = () => {
@@ -26,6 +37,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ mengirimPesan, sedangMengirim }) 
   
   return (
     <div className="flex flex-col w-full">
+      <div className="flex justify-end mb-2">
+        <ModelSelector 
+          modelTerpilih={modelTerpilih} 
+          mengubahModel={mengubahModel} 
+          daftarModel={daftarModel} 
+        />
+      </div>
       <div className="relative flex items-end">
         <textarea
           className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl p-4 pr-16 outline-none resize-none min-h-[80px] max-h-[200px] text-sm md:text-base placeholder:text-foreground/40 transition-all duration-200 focus:shadow-md focus:border-blue-500/30"

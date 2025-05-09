@@ -12,3 +12,8 @@ export type ResponseAPIType = {
   status: 'success' | 'error';
   kode: number;
 };
+
+export type ModelAIType = {
+  id: string;
+  nama: string;
+};

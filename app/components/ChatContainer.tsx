@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { PesanType, DaftarPesanType } from '../types/chat';
-import { kirimPesan } from '../api/chatService';
+import { kirimPesan, daftarModelAI, getModelSekarang, setModelSekarang } from '../api/chatService';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 
@@ -13,6 +13,7 @@ const generateUniqueId = () => {
 const ChatContainer: React.FC = () => {
   const [daftarPesan, setDaftarPesan] = useState<DaftarPesanType>([]);
   const [sedangMengirim, setSedangMengirim] = useState<boolean>(false);
+  const [modelTerpilih, setModelTerpilih] = useState<string>(getModelSekarang());
   const pesanContainerRef = useRef<HTMLDivElement>(null);
   const pesanSelamatDatangDitampilkan = useRef<boolean>(false);
   
@@ -53,6 +54,14 @@ const ChatContainer: React.FC = () => {
     }
   };
   
+  const handleUbahModel = (modelId: string) => {
+    const hasil = setModelSekarang(modelId);
+    if (hasil.status === 'success') {
+      setModelTerpilih(modelId);
+      tambahPesan(`Model AI diubah ke ${daftarModelAI.find(m => m.id === modelId)?.nama || modelId}`, 'ai');
+    }
+  };
+  
   useEffect(() => {
     if (daftarPesan.length === 0 && !pesanSelamatDatangDitampilkan.current) {
       tambahPesan('Halo! Saya adalah Wahit AI, asisten AI yang siap membantu Anda. Ada yang bisa saya bantu?', 'ai');
@@ -90,7 +99,9 @@ const ChatContainer: React.FC = () => {
                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
                   <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '200ms' }}></div>
                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '400ms' }}></div>
-                  <span className="ml-2 text-xs font-medium">Wahit AI sedang mengetik</span>
+                  <span className="ml-2 text-xs font-medium">
+                    Wahit AI sedang mengetik ({daftarModelAI.find(m => m.id === modelTerpilih)?.nama || modelTerpilih})
+                  </span>
                 </div>
               </div>
             </div>
@@ -99,7 +110,13 @@ const ChatContainer: React.FC = () => {
       </div>
       
       <div className="px-4 pt-3 pb-4 border-t border-black/5 dark:border-white/5 bg-gradient-to-b from-transparent to-background/40 backdrop-blur-sm">
-        <ChatInput mengirimPesan={handleKirimPesan} sedangMengirim={sedangMengirim} />
+        <ChatInput 
+          mengirimPesan={handleKirimPesan} 
+          sedangMengirim={sedangMengirim} 
+          modelTerpilih={modelTerpilih}
+          mengubahModel={handleUbahModel}
+          daftarModel={daftarModelAI}
+        />
       </div>
     </div>
   );

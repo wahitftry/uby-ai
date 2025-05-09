@@ -4,6 +4,7 @@ const API_KEY = process.env.API_KEY || 'secret';
 export async function POST(request: Request) {
   try {
     const data = await request.json();
+    const model = data.model || 'gpt-4o';
     const messages = data.riwayatPesan || [
       {
         role: 'system',
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         messages: messages,
-        model: 'gpt-4o',
+        model: model,
         stream: false
       })
     };
@@ -52,7 +53,8 @@ export async function POST(request: Request) {
     return Response.json({
       respons: responsData.choices?.[0]?.message?.content || 'Tidak ada respons dari AI',
       status: 'success',
-      kode: respons.status
+      kode: respons.status,
+      modelDipakai: model
     });
   } catch (error) {
     console.error('Error mengirim pesan ke API eksternal:', error);
