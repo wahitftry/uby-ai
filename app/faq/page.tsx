@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 interface FaqItemProps {
   pertanyaan: string;
@@ -95,28 +97,7 @@ export default function FaqPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/95">
-      <header className="flex items-center justify-between p-4 border-b border-black/5 dark:border-white/5 backdrop-blur-sm bg-background/70 sticky top-0 z-20">
-        <div className="flex items-center gap-3">
-          <div className="relative h-10 w-10 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">W</div>
-          </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">UBY AI</h1>
-        </div>
-        <div className="flex gap-4">
-          <Link href="/" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
-            Beranda
-          </Link>
-          <Link href="/showcase" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
-            Showcase
-          </Link>
-          <Link href="/faq" className="text-sm font-medium text-foreground transition-colors">
-            FAQ
-          </Link>
-          <Link href="/about" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
-            Tentang
-          </Link>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="container mx-auto px-6 py-12 max-w-3xl">
         <div className="text-center mb-12">
@@ -140,12 +121,9 @@ export default function FaqPage() {
           <Link href="/" className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl hover:opacity-90 transition-opacity">
             Tanyakan kepada UBY AI
           </Link>
-        </div>
-      </main>
+        </div>      </main>
       
-      <footer className="mt-auto py-6 text-center text-sm text-foreground/50 border-t border-black/5 dark:border-white/5">
-        © {new Date().getFullYear()} Wahit Fitriyanto, Amelia, Arthur, Qois - Semua hak dilindungi
-      </footer>
+      <Footer />
     </div>
   );
 }
