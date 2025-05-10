@@ -156,14 +156,14 @@ export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanTy
     } catch (parseError) {
       console.error('Error parsing data percakapan:', parseError);
       daftarPercakapan = [];
-    }
+    }    const indexPercakapan = daftarPercakapan.findIndex(p => p.id === id);
     
+    const percakapanLama = indexPercakapan >= 0 ? daftarPercakapan[indexPercakapan] : null;
     const judulPercakapan = judul || 
+      (percakapanLama?.judul) || 
       (pesanValid.length > 0 && pesanValid[0].pengirim === 'user'
         ? pesanValid[0].pesan.substring(0, 30) + (pesanValid[0].pesan.length > 30 ? '...' : '')
         : 'Percakapan Baru');
-    
-    const indexPercakapan = daftarPercakapan.findIndex(p => p.id === id);
     
     const waktuSekarang = Date.now();
     const percakapan: PercakapanType = {

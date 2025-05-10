@@ -123,8 +123,49 @@ const ChatContainer: React.FC = () => {
       
       return daftarBaru;
     });
+  }; 
+  const ekstrakKalimatPertama = (teks: string): string => {
+    let teksBersih = teks.replace(/[#*_~`]/g, '');
+    teksBersih = teksBersih.replace(/^(Halo|Hai|Hi|Hello|Selamat pagi|Selamat siang|Selamat sore|Selamat malam),?\s+/i, '');
+    const pola = /([.!?])\s+|([.!?])$/;
+    const match = teksBersih.search(pola);
+    let kalimatPertama: string;
+    if (match !== -1) {
+      kalimatPertama = teksBersih.substring(0, match + 1);
+    } else {
+      const barisBaruIndex = teksBersih.indexOf('\n');
+      if (barisBaruIndex !== -1) {
+        kalimatPertama = teksBersih.substring(0, barisBaruIndex);
+      } else {
+        kalimatPertama = teksBersih;
+      }
+    }
+    
+    if (kalimatPertama.trim().length < 10 && teksBersih.length > kalimatPertama.length) {
+      const nextSentence = teksBersih.substring(kalimatPertama.length).trim();
+      const nextEnd = nextSentence.search(pola);
+      
+      if (nextEnd !== -1) {
+        kalimatPertama = kalimatPertama + ' ' + nextSentence.substring(0, nextEnd + 1);
+      } else if (nextSentence.length > 0) {
+        kalimatPertama = kalimatPertama + ' ' + nextSentence;
+      }
+    }
+    
+    if (kalimatPertama.length > 0) {
+      kalimatPertama = kalimatPertama.charAt(0).toUpperCase() + kalimatPertama.slice(1);
+    }
+    
+    if (kalimatPertama.length > 50) {
+      kalimatPertama = kalimatPertama.substring(0, 50) + '...';
+    }
+    
+    return kalimatPertama;
   };
-    const handleKirimPesan = async (isiPesan: string) => {
+  
+  const handleKirimPesan = async (isiPesan: string) => {
+    const percakapanKosong = daftarPesan.length === 0;
+    
     if (!percakapanId) {
       const id = generateId();
       setPercakapanId(id);
@@ -140,6 +181,19 @@ const ChatContainer: React.FC = () => {
       const respons = await kirimPesan(isiPesan);
       if (respons.status === 'success') {
         tambahPesan(respons.respons, 'ai');
+        if (percakapanKosong && percakapanId) {
+          const kalimatPertama = ekstrakKalimatPertama(respons.respons);
+          setJudulPercakapan(kalimatPertama);
+          const berhasilUbahJudul = editJudulPercakapan(percakapanId, kalimatPertama);
+          
+          if (berhasilUbahJudul) {
+            setNotifikasi({
+              pesan: 'Judul percakapan otomatis diperbarui',
+              tipe: 'sukses'
+            });
+            setTimeout(() => setNotifikasi(null), 3000);
+          }
+        }
       } else {
         tambahPesan('Maaf, terjadi kesalahan saat berkomunikasi dengan AI. Silakan coba lagi.', 'ai');
       }
