@@ -1,6 +1,7 @@
 'use client';
 import dynamic from 'next/dynamic';
 import Image from "next/image";
+import Link from "next/link";
 
 const ChatContainer = dynamic(() => import('./components/ChatContainer'), { 
   ssr: false,
@@ -25,8 +26,13 @@ export default function Home() {
           </div>
           <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">Wahit AI</h1>
         </div>
-        <div className="text-xs text-foreground/50 font-light">
-          Dibuat oleh Wahit Fitriyanto dengan Next.js dan Tailwind CSS
+        <div className="flex gap-4">
+          <Link href="/" className="text-sm font-medium text-foreground transition-colors">
+            Beranda
+          </Link>
+          <Link href="/about" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
+            Tentang Saya
+          </Link>
         </div>
       </header>
       
@@ -35,6 +41,10 @@ export default function Home() {
           <ChatContainer />
         </div>
       </main>
+      
+      <footer className="mt-auto py-4 text-center text-xs text-foreground/50">
+        © {new Date().getFullYear()} Wahit Fitriyanto - Semua hak dilindungi
+      </footer>
     </div>
   );
 }
