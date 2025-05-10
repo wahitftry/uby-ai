@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Wahit AI - Asisten Kecerdasan Buatan Pribadi",
+  title: "UBY AI - Asisten Kecerdasan Buatan Pribadi",
   description: "Asisten AI pribadi yang membantu Anda menjawab pertanyaan, membuat konten, menganalisis data, dan banyak lagi.",
 };
 

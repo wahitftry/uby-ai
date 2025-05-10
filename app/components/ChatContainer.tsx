@@ -297,23 +297,25 @@ const ChatContainer: React.FC = () => {
       }
     }
   }, [percakapanId]);
-  
-  const handleLogin = (kunci: string) => {
-    setKunciEnkripsi(kunci);
-    setKunciEnkripsiState(kunci);
-    setIsAuthenticated(true);
-    
-    setNotifikasi({
-      pesan: 'Berhasil masuk dengan kunci enkripsi',
-      tipe: 'sukses'
-    });
-    
-    setTimeout(() => {
-      setNotifikasi(null);
-    }, 3000);
-    
-    if (selectedEncryptedConversation) {
-      bukaPercakapanTerenkripsi(selectedEncryptedConversation, kunci);
+    const handleLogin = (kunci: string) => {
+    // Gunakan pemeriksaan kondisi untuk menghindari loop pembaruan berlebihan
+    if (kunciEnkripsi !== kunci) {
+      setKunciEnkripsi(kunci);
+      setKunciEnkripsiState(kunci);
+      setIsAuthenticated(true);
+      
+      setNotifikasi({
+        pesan: 'Berhasil masuk dengan kunci enkripsi',
+        tipe: 'sukses'
+      });
+      
+      setTimeout(() => {
+        setNotifikasi(null);
+      }, 3000);
+      
+      if (selectedEncryptedConversation) {
+        bukaPercakapanTerenkripsi(selectedEncryptedConversation, kunci);
+      }
     }
   };
   

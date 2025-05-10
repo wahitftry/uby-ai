@@ -13,16 +13,15 @@ const AuthManager: React.FC<AuthManagerProps> = ({ onLogin, onLogout, isAuthenti
   const [kunci, setKunci] = useState<string>('');
   const [simpanKunci, setSimpanKunci] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const kunciTersimpan = localStorage.getItem('wahit_kunci_hash');
-    if (kunciTersimpan) {
+    if (kunciTersimpan && !isAuthenticated) {
       const kunciDecoded = atob(kunciTersimpan);
       if (kunciDecoded && kunciDecoded.length > 0) {
         onLogin(kunciDecoded);
       }
     }
-  }, [onLogin]);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
