@@ -1,7 +1,8 @@
-import { ResponseAPIType, ModelAIType } from '../types/chat';
+import { ResponseAPIType, ModelAIType, PercakapanType, DaftarPercakapanType, DaftarPesanType, PesanType } from '../types/chat';
 
 let riwayatPesan: { role: string, content: string }[] = [];
 let modelSekarang: string = 'gpt-4o';
+let percakapanAktif: string | null = null;
 
 export const daftarModelAI: ModelAIType[] = [
   { id: 'gpt-4o', nama: 'GPT-4o' },
@@ -77,4 +78,110 @@ export function setModelSekarang(modelId: string) {
     return { status: 'success', model: modelSekarang };
   }
   return { status: 'error', pesan: 'Model tidak valid' };
+}
+
+export function generateId(): string {
+  return Date.now().toString() + Math.random().toString(36).substring(2, 10);
+}
+
+export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanType): PercakapanType {
+  try {
+    if (typeof window === 'undefined') {
+      throw new Error('localStorage tidak tersedia');
+    }
+    
+    const daftarPercakapanString = localStorage.getItem('wahit_percakapan');
+    const daftarPercakapan: DaftarPercakapanType = daftarPercakapanString 
+      ? JSON.parse(daftarPercakapanString) 
+      : [];
+    
+    const judulPercakapan = judul || 
+      (pesan.length > 0 && pesan[0].pengirim === 'user'
+        ? pesan[0].pesan.substring(0, 30) + (pesan[0].pesan.length > 30 ? '...' : '')
+        : 'Percakapan Baru');
+    
+    const indexPercakapan = daftarPercakapan.findIndex(p => p.id === id);
+    
+    const waktuSekarang = Date.now();
+    const percakapan: PercakapanType = {
+      id,
+      judul: judulPercakapan,
+      tanggalDibuat: indexPercakapan >= 0 ? daftarPercakapan[indexPercakapan].tanggalDibuat : waktuSekarang,
+      terakhirDiubah: waktuSekarang,
+      pesanPertama: pesan.length > 0 && pesan[0].pengirim === 'user' ? pesan[0].pesan : undefined,
+      model: modelSekarang,
+      pesan: [...pesan]
+    };
+
+    if (indexPercakapan >= 0) {
+      daftarPercakapan[indexPercakapan] = percakapan;
+    } else {
+      daftarPercakapan.unshift(percakapan);
+    }
+
+    localStorage.setItem('wahit_percakapan', JSON.stringify(daftarPercakapan));
+    
+    return percakapan;
+  } catch (error) {
+    console.error('Error menyimpan percakapan:', error);
+    throw error;
+  }
+}
+
+export function getDaftarPercakapan(): DaftarPercakapanType {
+  try {
+    if (typeof window === 'undefined') {
+      return [];
+    }
+    
+    const daftarPercakapanString = localStorage.getItem('wahit_percakapan');
+    if (!daftarPercakapanString) return [];
+    
+    return JSON.parse(daftarPercakapanString);
+  } catch (error) {
+    console.error('Error mendapatkan daftar percakapan:', error);
+    return [];
+  }
+}
+
+export function getPercakapan(id: string): PercakapanType | null {
+  try {
+    const daftarPercakapan = getDaftarPercakapan();
+    const percakapan = daftarPercakapan.find(p => p.id === id);
+    
+    return percakapan || null;
+  } catch (error) {
+    console.error('Error mendapatkan percakapan:', error);
+    return null;
+  }
+}
+
+export function hapusPercakapan(id: string): boolean {
+  try {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    
+    const daftarPercakapan = getDaftarPercakapan();
+    const daftarBaru = daftarPercakapan.filter(p => p.id !== id);
+    
+    localStorage.setItem('wahit_percakapan', JSON.stringify(daftarBaru));
+    
+    if (percakapanAktif === id) {
+      percakapanAktif = null;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error menghapus percakapan:', error);
+    return false;
+  }
+}
+
+export function setPercakapanAktif(id: string | null) {
+  percakapanAktif = id;
+}
+
+export function getPercakapanAktif(): string | null {
+  return percakapanAktif;
 }
