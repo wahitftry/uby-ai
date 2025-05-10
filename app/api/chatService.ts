@@ -133,32 +133,49 @@ export function generateId(): string {
   return Date.now().toString() + Math.random().toString(36).substring(2, 10);
 }
 
-export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanType): PercakapanType {  try {
+export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanType): PercakapanType {  
+  try {
     if (typeof window === 'undefined') {
       throw new Error('localStorage tidak tersedia');
     }
     
-    const daftarPercakapanString = localStorage.getItem('wahit_percakapan');
-    const daftarPercakapan: DaftarPercakapanType = daftarPercakapanString 
-      ? JSON.parse(daftarPercakapanString) 
-      : [];
+    if (!id) {
+      throw new Error('ID percakapan tidak valid');
+    }
+
+    const pesanValid = Array.isArray(pesan) ? pesan : [];
+    let daftarPercakapan: DaftarPercakapanType = [];
+    try {
+      const daftarPercakapanString = localStorage.getItem('wahit_percakapan');
+      if (daftarPercakapanString) {
+        daftarPercakapan = JSON.parse(daftarPercakapanString);
+        if (!Array.isArray(daftarPercakapan)) {
+          daftarPercakapan = [];
+        }
+      }
+    } catch (parseError) {
+      console.error('Error parsing data percakapan:', parseError);
+      daftarPercakapan = [];
+    }
     
     const judulPercakapan = judul || 
-      (pesan.length > 0 && pesan[0].pengirim === 'user'
-        ? pesan[0].pesan.substring(0, 30) + (pesan[0].pesan.length > 30 ? '...' : '')
+      (pesanValid.length > 0 && pesanValid[0].pengirim === 'user'
+        ? pesanValid[0].pesan.substring(0, 30) + (pesanValid[0].pesan.length > 30 ? '...' : '')
         : 'Percakapan Baru');
     
     const indexPercakapan = daftarPercakapan.findIndex(p => p.id === id);
     
-    const waktuSekarang = Date.now();    const percakapan: PercakapanType = {
+    const waktuSekarang = Date.now();
+    const percakapan: PercakapanType = {
       id,
       judul: judulPercakapan,
       tanggalDibuat: indexPercakapan >= 0 ? daftarPercakapan[indexPercakapan].tanggalDibuat : waktuSekarang,
       terakhirDiubah: waktuSekarang,
-      pesanPertama: pesan.length > 0 && pesan[0].pengirim === 'user' ? pesan[0].pesan : undefined,
+      pesanPertama: pesanValid.length > 0 && pesanValid[0].pengirim === 'user' ? pesanValid[0].pesan : undefined,
       model: modelSekarang,
       gayaRespons: gayaResponsSekarang,
-      pesan: [...pesan]
+      pesan: [...pesanValid],
+      dibookmark: indexPercakapan >= 0 && daftarPercakapan[indexPercakapan].dibookmark ? true : false
     };
 
     if (indexPercakapan >= 0) {
@@ -167,12 +184,29 @@ export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanTy
       daftarPercakapan.unshift(percakapan);
     }
 
-    localStorage.setItem('wahit_percakapan', JSON.stringify(daftarPercakapan));
+    try {
+      localStorage.setItem('wahit_percakapan', JSON.stringify(daftarPercakapan));
+    } catch (storageError) {
+      console.error('Error menyimpan ke localStorage:', storageError);
+    }
+    setPercakapanAktif(id);
     
     return percakapan;
   } catch (error) {
     console.error('Error menyimpan percakapan:', error);
-    throw error;
+    
+    const percakapanDefault: PercakapanType = {
+      id,
+      judul: judul || 'Percakapan Baru',
+      tanggalDibuat: Date.now(),
+      terakhirDiubah: Date.now(),
+      model: modelSekarang,
+      gayaRespons: gayaResponsSekarang,
+      pesan: [],
+      dibookmark: false
+    };
+    
+    return percakapanDefault;
   }
 }
 
@@ -210,11 +244,15 @@ export function hapusPercakapan(id: string): boolean {
       return false;
     }
     
-    const daftarPercakapan = getDaftarPercakapan();
+    const daftarPercakapanString = localStorage.getItem('wahit_percakapan');
+    if (!daftarPercakapanString) return false;
+    
+    const daftarPercakapan: DaftarPercakapanType = JSON.parse(daftarPercakapanString);
     const daftarBaru = daftarPercakapan.filter(p => p.id !== id);
     
     localStorage.setItem('wahit_percakapan', JSON.stringify(daftarBaru));
-      if (percakapanAktif === id) {
+    
+    if (percakapanAktif === id) {
       percakapanAktif = null;
       localStorage.removeItem('wahit_percakapan_aktif');
     }
@@ -236,14 +274,21 @@ export function setPercakapanAktif(id: string | null) {
       localStorage.setItem('wahit_percakapan_aktif', id);
     }
   }
+  
+  return id;
 }
 
 export function getPercakapanAktif(): string | null {
   if (typeof window !== 'undefined') {
     const idTersimpan = localStorage.getItem('wahit_percakapan_aktif');
     if (idTersimpan) {
-      percakapanAktif = idTersimpan;
-      return idTersimpan;
+      const percakapanDitemukan = getPercakapan(idTersimpan);
+      if (percakapanDitemukan) {
+        percakapanAktif = idTersimpan;
+        return idTersimpan;
+      } else {
+        localStorage.removeItem('wahit_percakapan_aktif');
+      }
     }
   }
   
@@ -261,7 +306,6 @@ export function toggleBookmarkPercakapan(id: string): boolean {
     
     if (index === -1) return false;
     
-    // Toggle status bookmark
     daftarPercakapan[index].dibookmark = !daftarPercakapan[index].dibookmark;
     
     localStorage.setItem('wahit_percakapan', JSON.stringify(daftarPercakapan));

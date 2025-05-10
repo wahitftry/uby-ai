@@ -8,7 +8,6 @@ export async function POST(request: Request) {
     
     let petunjukSistem = 'Kamu adalah asisten AI yang membantu pengguna. Berikan jawaban yang sopan, akurat, dan bermanfaat.';
     
-    // Menyesuaikan petunjuk sistem berdasarkan gaya respons
     switch(gayaRespons) {
       case 'formal':
         petunjukSistem += ' Gunakan bahasa formal dan profesional. Hindari bahasa gaul atau ekspresi informal.';

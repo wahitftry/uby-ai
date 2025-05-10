@@ -19,11 +19,12 @@ export default function ConversationSidebar({
 }: ConversationSidebarProps) {
   const [daftarPercakapan, setDaftarPercakapan] = useState<DaftarPercakapanType>([]);
   const [pencarian, setPencarian] = useState('');
-  const [tampilkanBookmark, setTampilkanBookmark] = useState<boolean>(false);  useEffect(() => {
+  const [tampilkanBookmark, setTampilkanBookmark] = useState<boolean>(false); 
+  useEffect(() => {
     if (visible) {
       muatPercakapan();
     }
-  }, [visible, tampilkanBookmark]);
+  }, [visible, tampilkanBookmark, percakapanAktif]);
   const muatPercakapan = () => {
     if (tampilkanBookmark) {
       const bookmark = getDaftarPercakapanBookmark();
@@ -33,16 +34,19 @@ export default function ConversationSidebar({
       setDaftarPercakapan(percakapan);
     }
   };
-  
-  const handleHapusPercakapan = (id: string, e: React.MouseEvent) => {
+    const handleHapusPercakapan = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     
     if (window.confirm('Apakah Anda yakin ingin menghapus percakapan ini?')) {
-      hapusPercakapan(id);
-      muatPercakapan();
+      const berhasil = hapusPercakapan(id);
       
-      if (percakapanAktif === id) {
-        onNewChat();
+      if (berhasil) {
+        muatPercakapan();
+        if (percakapanAktif === id) {
+          onNewChat();
+        }
+      } else {
+        alert('Gagal menghapus percakapan');
       }
     }
   };

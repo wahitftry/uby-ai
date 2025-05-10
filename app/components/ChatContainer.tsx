@@ -22,7 +22,6 @@ import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import ConversationSidebar from './ConversationSidebar';
 import EksporPDF from './EksporPDF';
-import BagiPercakapan from './BagiPercakapan';
 import ContextWindowIndicator from './ContextWindowIndicator';
 
 const ChatContainer: React.FC = () => {
@@ -43,34 +42,59 @@ const ChatContainer: React.FC = () => {
     if (pesanContainerRef.current) {
       pesanContainerRef.current.scrollTop = pesanContainerRef.current.scrollHeight;
     }
-  }, [daftarPesan]);
-  useEffect(() => {    const idTersimpan = getPercakapanAktif();    if (idTersimpan) {
-      const percakapan = getPercakapan(idTersimpan);
-      if (percakapan) {
-        setDaftarPesan(percakapan.pesan);
-        setModelTerpilih(percakapan.model);
-        setPercakapanId(idTersimpan);
-        setModelSekarang(percakapan.model);
-        
-        if (percakapan.gayaRespons) {
-          setGayaResponsTerpilih(percakapan.gayaRespons);
-          setGayaResponsSekarang(percakapan.gayaRespons);
+  }, [daftarPesan]);  useEffect(() => {
+    try {
+      const idTersimpan = getPercakapanAktif();
+      
+      if (idTersimpan) {
+        const percakapan = getPercakapan(idTersimpan);
+        if (percakapan) {
+          setDaftarPesan(percakapan.pesan || []);
+          setModelTerpilih(percakapan.model || getModelSekarang());
+          setPercakapanId(idTersimpan);
+          setJudulPercakapan(percakapan.judul || 'Percakapan');
+          setModelSekarang(percakapan.model || getModelSekarang());
+          
+          if (percakapan.gayaRespons) {
+            setGayaResponsTerpilih(percakapan.gayaRespons);
+            setGayaResponsSekarang(percakapan.gayaRespons);
+          }
+          
+          pesanSelamatDatangDitampilkan.current = true;
+          return;
         }
-        
-        pesanSelamatDatangDitampilkan.current = true;
-        return;
       }
+      
+      const idBaru = generateId();
+      setPercakapanId(idBaru);
+      setPercakapanAktif(idBaru);
+      setJudulPercakapan('Percakapan Baru');
+      simpanPercakapan(idBaru, 'Percakapan Baru', []);
+    } catch (error) {
+      console.error('Error saat memuat percakapan aktif:', error);
+
+      const idBaru = generateId();
+      setPercakapanId(idBaru);
+      setPercakapanAktif(idBaru);
+      setJudulPercakapan('Percakapan Baru');
+      simpanPercakapan(idBaru, 'Percakapan Baru', []);
     }
-    setPercakapanId(null);
+    
     pesanSelamatDatangDitampilkan.current = true;
   }, []);
-  
   useEffect(() => {
-    if (daftarPesan.length > 0 && percakapanId) {
-      simpanPercakapan(percakapanId, '', daftarPesan);
+    if (percakapanId && !sedangMengirim && daftarPesan.length > 0) {
+      try {
+        simpanPercakapan(percakapanId, judulPercakapan || '', daftarPesan);
+        setPercakapanAktif(percakapanId);
+        console.log('Percakapan tersimpan dengan ID:', percakapanId);
+      } catch (error) {
+        console.error('Error saat menyimpan percakapan:', error);
+      }
     }
-  }, [daftarPesan, percakapanId]);
-  const tambahPesan = (isiPesan: string, pengirim: 'user' | 'ai') => {
+  }, [daftarPesan, percakapanId, judulPercakapan, sedangMengirim]);const tambahPesan = (isiPesan: string, pengirim: 'user' | 'ai') => {
+    if (!isiPesan.trim()) return;
+    
     const pesanBaru: PesanType = {
       id: generateId(),
       pesan: isiPesan,
@@ -78,10 +102,36 @@ const ChatContainer: React.FC = () => {
       timestamp: Date.now()
     };
     
-    setDaftarPesan((pesanSebelumnya) => [...pesanSebelumnya, pesanBaru]);
+    setDaftarPesan((pesanSebelumnya) => {
+      const daftarBaru = [...pesanSebelumnya, pesanBaru];
+      
+      if (percakapanId) {
+        try {
+          setTimeout(() => {
+            const judulBaru = judulPercakapan || 
+              (pengirim === 'user' && isiPesan.trim() ? 
+                isiPesan.substring(0, 30) + (isiPesan.length > 30 ? '...' : '') : 
+                'Percakapan Baru');
+            
+            simpanPercakapan(percakapanId, judulBaru, daftarBaru);
+            setPercakapanAktif(percakapanId);
+          }, 0);
+        } catch (error) {
+          console.error('Error saat menyimpan pesan:', error);
+        }
+      }
+      
+      return daftarBaru;
+    });
   };
-  
-  const handleKirimPesan = async (isiPesan: string) => {
+    const handleKirimPesan = async (isiPesan: string) => {
+    if (!percakapanId) {
+      const id = generateId();
+      setPercakapanId(id);
+      setPercakapanAktif(id);
+      setJudulPercakapan(isiPesan.length > 30 ? isiPesan.substring(0, 30) + '...' : isiPesan);
+    }
+    
     tambahPesan(isiPesan, 'user');
     
     setSedangMengirim(true);
@@ -98,6 +148,14 @@ const ChatContainer: React.FC = () => {
       tambahPesan('Maaf, terjadi kesalahan teknis. Silakan coba lagi.', 'ai');
     } finally {
       setSedangMengirim(false);
+      
+      if (percakapanId && daftarPesan.length > 0) {
+        simpanPercakapan(
+          percakapanId, 
+          judulPercakapan || (daftarPesan[0].pesan.length > 30 ? daftarPesan[0].pesan.substring(0, 30) + '...' : daftarPesan[0].pesan),
+          [...daftarPesan]
+        );
+      }
     }
   };
   const handleUbahModel = (modelId: string) => {
@@ -115,19 +173,23 @@ const ChatContainer: React.FC = () => {
       tambahPesan(`Gaya respons AI diubah ke ${daftarGayaRespons.find(g => g.id === gayaId)?.nama || gayaId}`, 'ai');
     }
   };
-    const buatPercakapanBaru = () => {
+  const buatPercakapanBaru = () => {
     const id = generateId();
     setPercakapanId(id);
     setPercakapanAktif(id);
     setDaftarPesan([]);
+    setJudulPercakapan('Percakapan Baru');
+    simpanPercakapan(id, 'Percakapan Baru', []);
+    
     pesanSelamatDatangDitampilkan.current = true;
   };
-    const handlePilihPercakapan = (percakapan: PercakapanType) => {
+  const handlePilihPercakapan = (percakapan: PercakapanType) => {
     setDaftarPesan(percakapan.pesan);
     setModelTerpilih(percakapan.model);
     setPercakapanId(percakapan.id);
-    setPercakapanAktif(percakapan.id);
+    setJudulPercakapan(percakapan.judul);
     setModelSekarang(percakapan.model);
+    setPercakapanAktif(percakapan.id);
     
     if (percakapan.gayaRespons) {
       setGayaResponsTerpilih(percakapan.gayaRespons);
@@ -159,7 +221,6 @@ const ChatContainer: React.FC = () => {
     }
   };
   
-  // Perbarui judul percakapan saat percakapanId berubah
   useEffect(() => {
     if (percakapanId) {
       const percakapan = getPercakapan(percakapanId);
@@ -291,45 +352,33 @@ const ChatContainer: React.FC = () => {
                       tipe: 'error'
                     });
                     setTimeout(() => setNotifikasi(null), 3000);
-                  }}
-                />
+                  }}                />
                 
                 <hr className="border-t border-black/10 dark:border-white/10 my-2" />
-                  <BagiPercakapan
-                  daftarPesan={daftarPesan}
-                  judulPercakapan={getPercakapan(percakapanId || '')?.judul || 'Wahit AI - Percakapan'}
-                  onSelesai={() => {
-                    setNotifikasi({
-                      pesan: 'Tautan berbagi berhasil dibuat',
-                      tipe: 'sukses'
-                    });
-                    setTimeout(() => setNotifikasi(null), 3000);
-                  }}
-                  onError={(pesan) => {
-                    setNotifikasi({
-                      pesan,
-                      tipe: 'error'
-                    });
-                    setTimeout(() => setNotifikasi(null), 3000);
-                  }}
-                />
-                
-                <hr className="border-t border-black/10 dark:border-white/10 my-2" />
-                
-                <button
+                  <button
                   onClick={() => {
                     if (percakapanId && window.confirm('Apakah Anda yakin ingin menghapus percakapan ini?')) {
-                      if (hapusPercakapan(percakapanId)) {
-                        setEksporMenuVisible(false);
-                        buatPercakapanBaru();
+                      try {
+                        const hasilHapus = hapusPercakapan(percakapanId);
+                        if (hasilHapus) {
+                          setEksporMenuVisible(false);
+                          setNotifikasi({
+                            pesan: 'Percakapan berhasil dihapus',
+                            tipe: 'sukses'
+                          });
+                          buatPercakapanBaru();
+                          setTimeout(() => setNotifikasi(null), 3000);
+                        } else {
+                          setNotifikasi({
+                            pesan: 'Gagal menghapus percakapan',
+                            tipe: 'error'
+                          });
+                          setTimeout(() => setNotifikasi(null), 3000);
+                        }
+                      } catch (error) {
+                        console.error('Error saat menghapus percakapan:', error);
                         setNotifikasi({
-                          pesan: 'Percakapan berhasil dihapus',
-                          tipe: 'sukses'
-                        });
-                        setTimeout(() => setNotifikasi(null), 3000);
-                      } else {
-                        setNotifikasi({
-                          pesan: 'Gagal menghapus percakapan',
+                          pesan: 'Terjadi kesalahan saat menghapus percakapan',
                           tipe: 'error'
                         });
                         setTimeout(() => setNotifikasi(null), 3000);
