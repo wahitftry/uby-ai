@@ -2,13 +2,16 @@
 
 import React, { useState, KeyboardEvent } from 'react';
 import ModelSelector from './ModelSelector';
+import GayaResponsSelector from './GayaResponsSelector';
 import { ModelAIType } from '../types/chat';
 
 interface ChatInputProps {
   mengirimPesan: (pesan: string) => void;
   sedangMengirim: boolean;
   modelTerpilih: string;
+  gayaResponsTerpilih: string;
   mengubahModel: (modelId: string) => void;
+  mengubahGayaRespons: (gayaId: string) => void;
   daftarModel: ModelAIType[];
 }
 
@@ -16,9 +19,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
   mengirimPesan, 
   sedangMengirim,
   modelTerpilih,
+  gayaResponsTerpilih,
   mengubahModel,
+  mengubahGayaRespons,
   daftarModel
-}) => {
+})=> {
   const [pesan, setPesan] = useState<string>('');
     const handleKirim = () => {
     if (pesan.trim() && !sedangMengirim) {
@@ -33,10 +38,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
       handleKirim();
     }
   };
-  
-  return (
+    return (
     <div className="flex flex-col w-full">
-      <div className="flex justify-end mb-2">
+      <div className="flex justify-between mb-2">
+        <GayaResponsSelector
+          gayaResponsTerpilih={gayaResponsTerpilih}
+          mengubahGayaRespons={mengubahGayaRespons}
+          disabled={sedangMengirim}
+        />
         <ModelSelector 
           modelTerpilih={modelTerpilih} 
           mengubahModel={mengubahModel} 

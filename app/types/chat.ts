@@ -14,7 +14,9 @@ export type PercakapanType = {
   terakhirDiubah: number;
   pesanPertama?: string;
   model: string;
+  gayaRespons?: string;
   pesan: DaftarPesanType;
+  dibookmark?: boolean;
 };
 
 export type DaftarPercakapanType = PercakapanType[];
@@ -28,4 +30,12 @@ export type ResponseAPIType = {
 export type ModelAIType = {
   id: string;
   nama: string;
+};
+
+export type GayaResponsType = 'formal' | 'santai' | 'panjang' | 'pendek';
+
+export type GayaResponsOption = {
+  id: GayaResponsType;
+  nama: string;
+  deskripsi: string;
 };

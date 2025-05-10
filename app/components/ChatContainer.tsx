@@ -4,25 +4,38 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PesanType, DaftarPesanType, PercakapanType } from '../types/chat';
 import { 
   kirimPesan, 
-  daftarModelAI, 
+  daftarModelAI,
+  daftarGayaRespons,
   getModelSekarang, 
-  setModelSekarang, 
+  setModelSekarang,
+  getGayaResponsSekarang,
+  setGayaResponsSekarang,
   simpanPercakapan,
   getPercakapan,
   getPercakapanAktif,
   setPercakapanAktif,
-  generateId
-} from '../api/chatService';
+  generateId,
+  editJudulPercakapan,
+  hapusPercakapan
+}from '../api/chatService';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import ConversationSidebar from './ConversationSidebar';
+import EksporPDF from './EksporPDF';
+import BagiPercakapan from './BagiPercakapan';
+import ContextWindowIndicator from './ContextWindowIndicator';
 
 const ChatContainer: React.FC = () => {
   const [daftarPesan, setDaftarPesan] = useState<DaftarPesanType>([]);
   const [sedangMengirim, setSedangMengirim] = useState<boolean>(false);
   const [modelTerpilih, setModelTerpilih] = useState<string>(getModelSekarang());
+  const [gayaResponsTerpilih, setGayaResponsTerpilih] = useState<string>(getGayaResponsSekarang());
   const [sidebarVisible, setSidebarVisible] = useState<boolean>(false);
   const [percakapanId, setPercakapanId] = useState<string | null>(getPercakapanAktif());
+  const [eksporMenuVisible, setEksporMenuVisible] = useState<boolean>(false);
+  const [notifikasi, setNotifikasi] = useState<{pesan: string, tipe: 'sukses' | 'error'} | null>(null);
+  const [judulPercakapan, setJudulPercakapan] = useState<string>('');
+  const [editJudul, setEditJudul] = useState<boolean>(false);
   
   const pesanContainerRef = useRef<HTMLDivElement>(null);
   const pesanSelamatDatangDitampilkan = useRef<boolean>(false);
@@ -31,14 +44,19 @@ const ChatContainer: React.FC = () => {
       pesanContainerRef.current.scrollTop = pesanContainerRef.current.scrollHeight;
     }
   }, [daftarPesan]);
-  useEffect(() => {    const idTersimpan = getPercakapanAktif();
-    if (idTersimpan) {
+  useEffect(() => {    const idTersimpan = getPercakapanAktif();    if (idTersimpan) {
       const percakapan = getPercakapan(idTersimpan);
       if (percakapan) {
         setDaftarPesan(percakapan.pesan);
         setModelTerpilih(percakapan.model);
         setPercakapanId(idTersimpan);
         setModelSekarang(percakapan.model);
+        
+        if (percakapan.gayaRespons) {
+          setGayaResponsTerpilih(percakapan.gayaRespons);
+          setGayaResponsSekarang(percakapan.gayaRespons);
+        }
+        
         pesanSelamatDatangDitampilkan.current = true;
         return;
       }
@@ -82,11 +100,19 @@ const ChatContainer: React.FC = () => {
       setSedangMengirim(false);
     }
   };
-    const handleUbahModel = (modelId: string) => {
+  const handleUbahModel = (modelId: string) => {
     const hasil = setModelSekarang(modelId);
     if (hasil.status === 'success') {
       setModelTerpilih(modelId);
       tambahPesan(`Model AI diubah ke ${daftarModelAI.find(m => m.id === modelId)?.nama || modelId}`, 'ai');
+    }
+  };
+  
+  const handleUbahGayaRespons = (gayaId: string) => {
+    const hasilGaya = setGayaResponsSekarang(gayaId);
+    if (hasilGaya) {
+      setGayaResponsTerpilih(gayaId);
+      tambahPesan(`Gaya respons AI diubah ke ${daftarGayaRespons.find(g => g.id === gayaId)?.nama || gayaId}`, 'ai');
     }
   };
     const buatPercakapanBaru = () => {
@@ -96,18 +122,52 @@ const ChatContainer: React.FC = () => {
     setDaftarPesan([]);
     pesanSelamatDatangDitampilkan.current = true;
   };
-  
-  const handlePilihPercakapan = (percakapan: PercakapanType) => {
+    const handlePilihPercakapan = (percakapan: PercakapanType) => {
     setDaftarPesan(percakapan.pesan);
     setModelTerpilih(percakapan.model);
     setPercakapanId(percakapan.id);
     setPercakapanAktif(percakapan.id);
     setModelSekarang(percakapan.model);
+    
+    if (percakapan.gayaRespons) {
+      setGayaResponsTerpilih(percakapan.gayaRespons);
+      setGayaResponsSekarang(percakapan.gayaRespons);
+    }
     setSidebarVisible(false);
   };
     const alihkanSidebar = () => {
     setSidebarVisible(!sidebarVisible);
   };
+  
+  const handleEditJudul = () => {
+    if (!percakapanId || !judulPercakapan.trim()) return;
+    
+    const berhasil = editJudulPercakapan(percakapanId, judulPercakapan);
+    if (berhasil) {
+      setEditJudul(false);
+      setNotifikasi({
+        pesan: 'Judul percakapan berhasil diubah',
+        tipe: 'sukses'
+      });
+      setTimeout(() => setNotifikasi(null), 3000);
+    } else {
+      setNotifikasi({
+        pesan: 'Gagal mengubah judul percakapan',
+        tipe: 'error'
+      });
+      setTimeout(() => setNotifikasi(null), 3000);
+    }
+  };
+  
+  // Perbarui judul percakapan saat percakapanId berubah
+  useEffect(() => {
+    if (percakapanId) {
+      const percakapan = getPercakapan(percakapanId);
+      if (percakapan) {
+        setJudulPercakapan(percakapan.judul);
+      }
+    }
+  }, [percakapanId]);
   return (
     <>      <ConversationSidebar
         visible={sidebarVisible}
@@ -116,33 +176,180 @@ const ChatContainer: React.FC = () => {
         onNewChat={buatPercakapanBaru}
         percakapanAktif={percakapanId}
       />
-      
-      <div className="flex flex-col h-full w-full">
+        <div className="flex flex-col h-full w-full">
         <div className="relative flex-1 overflow-hidden">          <button 
             onClick={alihkanSidebar}
             className="absolute top-2 left-2 z-10 p-2 rounded-full bg-black/5 dark:bg-white/5 text-foreground/70 hover:text-foreground/90 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
             title="Riwayat Percakapan"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <line x1="3" y1="12" x2="21" y2="12"></line>
               <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
           </button>
           
-          <button 
-            onClick={buatPercakapanBaru}
-            className="absolute top-2 right-2 z-10 p-2 rounded-full bg-black/5 dark:bg-white/5 text-foreground/70 hover:text-foreground/90 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-            title="Percakapan Baru"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
+          <div className="absolute top-2 left-12 z-10 flex items-center">
+            <ContextWindowIndicator jumlahPesan={daftarPesan.length} maksimalPesan={30} />
+          </div>
           
-          <div 
+            <div className="absolute top-2 right-2 z-10 flex gap-2">
+            <button
+              onClick={() => setEksporMenuVisible(!eksporMenuVisible)}
+              className="p-2 rounded-full bg-black/5 dark:bg-white/5 text-foreground/70 hover:text-foreground/90 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+              title="Opsi Percakapan"
+              disabled={daftarPesan.length === 0}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="19" cy="12" r="1"></circle>
+                <circle cx="5" cy="12" r="1"></circle>
+              </svg>
+            </button>
+            
+            <button 
+              onClick={buatPercakapanBaru}
+              className="p-2 rounded-full bg-black/5 dark:bg-white/5 text-foreground/70 hover:text-foreground/90 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+              title="Percakapan Baru"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+            {eksporMenuVisible && daftarPesan.length > 0 && (
+            <div className="absolute top-14 right-2 z-20 bg-background/95 border border-black/10 dark:border-white/10 rounded-lg shadow-lg p-3 backdrop-blur-sm w-64">
+              <h3 className="text-sm font-medium mb-2 text-center">Opsi Percakapan</h3>
+                <div className="space-y-2">
+                {!editJudul ? (
+                  <div 
+                    className="text-sm font-medium p-1 rounded hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors flex justify-between items-center" 
+                    onClick={() => {
+                      if (percakapanId) {
+                        const percakapan = getPercakapan(percakapanId);
+                        if (percakapan) {
+                          setJudulPercakapan(percakapan.judul);
+                          setEditJudul(true);
+                        }
+                      }
+                    }}
+                  >
+                    <span className="truncate">
+                      {getPercakapan(percakapanId || '')?.judul || 'Wahit AI - Percakapan'}
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
+                      <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="text"
+                      value={judulPercakapan}
+                      onChange={(e) => setJudulPercakapan(e.target.value)}
+                      className="flex-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded py-1 px-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      autoFocus
+                      placeholder="Judul percakapan..."
+                    />
+                    <button
+                      onClick={handleEditJudul}
+                      className="p-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setEditJudul(false)}
+                      className="p-1 rounded bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                )}
+                
+                <hr className="border-t border-black/10 dark:border-white/10 my-2" />
+                
+                <EksporPDF 
+                  daftarPesan={daftarPesan} 
+                  judulPercakapan={getPercakapan(percakapanId || '')?.judul || 'Wahit AI - Percakapan'}
+                  onSelesai={() => {
+                    setEksporMenuVisible(false);
+                    setNotifikasi({
+                      pesan: 'Percakapan berhasil diekspor ke PDF',
+                      tipe: 'sukses'
+                    });
+                    setTimeout(() => setNotifikasi(null), 3000);
+                  }}
+                  onError={(pesan) => {
+                    setNotifikasi({
+                      pesan,
+                      tipe: 'error'
+                    });
+                    setTimeout(() => setNotifikasi(null), 3000);
+                  }}
+                />
+                
+                <hr className="border-t border-black/10 dark:border-white/10 my-2" />
+                  <BagiPercakapan
+                  daftarPesan={daftarPesan}
+                  judulPercakapan={getPercakapan(percakapanId || '')?.judul || 'Wahit AI - Percakapan'}
+                  onSelesai={() => {
+                    setNotifikasi({
+                      pesan: 'Tautan berbagi berhasil dibuat',
+                      tipe: 'sukses'
+                    });
+                    setTimeout(() => setNotifikasi(null), 3000);
+                  }}
+                  onError={(pesan) => {
+                    setNotifikasi({
+                      pesan,
+                      tipe: 'error'
+                    });
+                    setTimeout(() => setNotifikasi(null), 3000);
+                  }}
+                />
+                
+                <hr className="border-t border-black/10 dark:border-white/10 my-2" />
+                
+                <button
+                  onClick={() => {
+                    if (percakapanId && window.confirm('Apakah Anda yakin ingin menghapus percakapan ini?')) {
+                      if (hapusPercakapan(percakapanId)) {
+                        setEksporMenuVisible(false);
+                        buatPercakapanBaru();
+                        setNotifikasi({
+                          pesan: 'Percakapan berhasil dihapus',
+                          tipe: 'sukses'
+                        });
+                        setTimeout(() => setNotifikasi(null), 3000);
+                      } else {
+                        setNotifikasi({
+                          pesan: 'Gagal menghapus percakapan',
+                          tipe: 'error'
+                        });
+                        setTimeout(() => setNotifikasi(null), 3000);
+                      }
+                    }
+                  }}
+                  className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  Hapus Percakapan
+                </button>
+              </div>
+            </div>
+          )}
+            <div 
             ref={pesanContainerRef}
+            id="container-pesan-pdf"
             className="absolute inset-0 px-4 py-6 overflow-y-auto scroll-smooth"
           >
           {daftarPesan.length === 0 ? (
@@ -173,6 +380,29 @@ const ChatContainer: React.FC = () => {
                   </span>
                 </div>
               </div>
+            </div>          )}
+          
+          {notifikasi && (
+            <div className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-full shadow-lg animate-fadeIn ${
+              notifikasi.tipe === 'sukses' 
+                ? 'bg-green-500 text-white' 
+                : 'bg-red-500 text-white'
+            }`}>
+              <div className="flex items-center gap-2">
+                {notifikasi.tipe === 'sukses' ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                )}
+                {notifikasi.pesan}
+              </div>
             </div>
           )}
         </div>
@@ -183,9 +413,12 @@ const ChatContainer: React.FC = () => {
           mengirimPesan={handleKirimPesan} 
           sedangMengirim={sedangMengirim} 
           modelTerpilih={modelTerpilih}
+          gayaResponsTerpilih={gayaResponsTerpilih}
           mengubahModel={handleUbahModel}
+          mengubahGayaRespons={handleUbahGayaRespons}
           daftarModel={daftarModelAI}
-        />      </div>
+        />
+      </div>
     </div>
     </>
   );
