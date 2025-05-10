@@ -31,7 +31,7 @@ const ChatContainer: React.FC = () => {
       pesanContainerRef.current.scrollTop = pesanContainerRef.current.scrollHeight;
     }
   }, [daftarPesan]);
-    useEffect(() => {    const idTersimpan = getPercakapanAktif();
+  useEffect(() => {    const idTersimpan = getPercakapanAktif();
     if (idTersimpan) {
       const percakapan = getPercakapan(idTersimpan);
       if (percakapan) {
@@ -43,7 +43,8 @@ const ChatContainer: React.FC = () => {
         return;
       }
     }
-    buatPercakapanBaru();
+    setPercakapanId(null);
+    pesanSelamatDatangDitampilkan.current = true;
   }, []);
   
   useEffect(() => {
@@ -88,14 +89,12 @@ const ChatContainer: React.FC = () => {
       tambahPesan(`Model AI diubah ke ${daftarModelAI.find(m => m.id === modelId)?.nama || modelId}`, 'ai');
     }
   };
-  
-  const buatPercakapanBaru = () => {
+    const buatPercakapanBaru = () => {
     const id = generateId();
     setPercakapanId(id);
     setPercakapanAktif(id);
     setDaftarPesan([]);
-    
-    pesanSelamatDatangDitampilkan.current = false;
+    pesanSelamatDatangDitampilkan.current = true;
   };
   
   const handlePilihPercakapan = (percakapan: PercakapanType) => {
@@ -109,13 +108,6 @@ const ChatContainer: React.FC = () => {
     const alihkanSidebar = () => {
     setSidebarVisible(!sidebarVisible);
   };
-  
-  useEffect(() => {
-    if (daftarPesan.length === 0 && !pesanSelamatDatangDitampilkan.current) {
-      tambahPesan('Halo! Saya adalah Wahit AI, asisten AI yang siap membantu Anda. Ada yang bisa saya bantu?', 'ai');
-      pesanSelamatDatangDitampilkan.current = true;
-    }
-  }, []);
   return (
     <>      <ConversationSidebar
         visible={sidebarVisible}
