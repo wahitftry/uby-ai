@@ -32,11 +32,8 @@ const AuthManager: React.FC<AuthManagerProps> = ({ onLogin, onLogout, isAuthenti
       setError('Kunci harus minimal 6 karakter');
       return;
     }
-    
     setError(null);
     onLogin(kunci);
-    
-    // Selalu simpan kunci secara otomatis
     const kunciEncoded = btoa(kunci);
     localStorage.setItem('wahit_kunci_hash', kunciEncoded);
   };

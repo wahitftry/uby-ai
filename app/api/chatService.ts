@@ -536,9 +536,7 @@ export const setKunciEnkripsi = (kunci: string | null) => {
   
   if (typeof window !== 'undefined') {
     if (kunci) {
-      // Simpan status autentikasi dan kunci hash
       localStorage.setItem('wahit_authenticated', 'true');
-      // Simpan kunci enkripsi dalam format base64 untuk keamanan
       localStorage.setItem('wahit_kunci_hash', btoa(kunci));
     } else {
       localStorage.removeItem('wahit_authenticated');
@@ -551,8 +549,6 @@ export const getIsAuthenticated = () => {
     const auth = localStorage.getItem('wahit_authenticated');
     const savedKunci = localStorage.getItem('wahit_kunci_hash');
     isAuthenticated = (auth === 'true') && (savedKunci !== null);
-    
-    // Jika ada kunci enkripsi tersimpan, pastikan variabel kunciEnkripsi juga diperbarui
     if (savedKunci && isAuthenticated && kunciEnkripsi === null) {
       try {
         kunciEnkripsi = atob(savedKunci);

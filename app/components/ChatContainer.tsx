@@ -47,7 +47,6 @@ const ChatContainer: React.FC = () => {
   const [modePrivasi, setModePrivasiState] = useState<boolean>(getModePrivasi());
   const [showEncryptionAlert, setShowEncryptionAlert] = useState<boolean>(false);
   const [selectedEncryptedConversation, setSelectedEncryptedConversation] = useState<string | null>(null);
-    // Inisialisasi kunci enkripsi dari localStorage jika tersedia
   const getInitialKunci = (): string | null => {
     if (typeof window !== 'undefined') {
       const savedKunci = localStorage.getItem('wahit_kunci_hash');
@@ -66,25 +65,18 @@ const ChatContainer: React.FC = () => {
   
   const pesanContainerRef = useRef<HTMLDivElement>(null);
   const pesanSelamatDatangDitampilkan = useRef<boolean>(false);
-    
-  // Effect untuk mengatur kunci enkripsi saat komponen dimuat
   useEffect(() => {
-    // Inisialisasi kunci enkripsi dari localStorage
     const initialKunci = getInitialKunci();
     
     if (initialKunci) {
-      // Atur kunci enkripsi ke state dan service
       setKunciEnkripsiState(initialKunci);
       setKunciEnkripsi(initialKunci);
       setIsAuthenticated(true);
-      
-      // Periksa apakah percakapan aktif terenkripsi dan perlu didekripsi
       const idTersimpan = getPercakapanAktif();
       if (idTersimpan) {
         const percakapan = getPercakapan(idTersimpan);
         if (percakapan && percakapan.terenkripsi) {
           try {
-            // Coba dekripsi percakapan dengan kunci yang tersedia
             const percakapanDekripsi = dekripsiPercakapan(percakapan, initialKunci);
             setDaftarPesan(percakapanDekripsi.pesan || []);
           } catch (error) {
@@ -106,13 +98,10 @@ const ChatContainer: React.FC = () => {
       if (idTersimpan) {
         const percakapan = getPercakapan(idTersimpan);
         if (percakapan) {
-          // Cek apakah percakapan terenkripsi dan kunci enkripsi tersedia
           if (percakapan.terenkripsi && kunciEnkripsi) {
-            // Dekripsi percakapan dengan kunci yang tersedia
             const percakapanDekripsi = dekripsiPercakapan(percakapan, kunciEnkripsi);
             setDaftarPesan(percakapanDekripsi.pesan || []);
           } else {
-            // Jika tidak terenkripsi atau tidak ada kunci, gunakan pesan apa adanya
             setDaftarPesan(percakapan.pesan || []);
           }
           
@@ -303,9 +292,7 @@ const ChatContainer: React.FC = () => {
     
     pesanSelamatDatangDitampilkan.current = true;
   };  const handlePilihPercakapan = (percakapan: PercakapanType) => {
-    // Cek jika percakapan terenkripsi
     if (percakapan.terenkripsi) {
-      // Coba dapatkan kunci dari state atau dari localStorage jika belum ada
       let kunciUntukDekripsi = kunciEnkripsi;
       
       if (!kunciUntukDekripsi && typeof window !== 'undefined') {
@@ -313,7 +300,6 @@ const ChatContainer: React.FC = () => {
         if (savedKunci) {
           try {
             kunciUntukDekripsi = atob(savedKunci);
-            // Update state kunci jika ditemukan di localStorage
             if (kunciUntukDekripsi) {
               setKunciEnkripsiState(kunciUntukDekripsi);
               setKunciEnkripsi(kunciUntukDekripsi);
@@ -327,24 +313,20 @@ const ChatContainer: React.FC = () => {
       
       if (kunciUntukDekripsi) {
         try {
-          // Dekripsi percakapan sebelum menampilkan
           const percakapanDekripsi = dekripsiPercakapan(percakapan, kunciUntukDekripsi);
           setDaftarPesan(percakapanDekripsi.pesan);
         } catch (error) {
           console.error('Gagal mendekripsi percakapan:', error);
-          // Jika gagal mendekripsi, tampilkan dialog minta kunci
           setShowEncryptionAlert(true);
           setSelectedEncryptedConversation(percakapan.id);
           return;
         }
       } else {
-        // Jika percakapan terenkripsi tapi tidak ada kunci
         setShowEncryptionAlert(true);
         setSelectedEncryptedConversation(percakapan.id);
-        return; // Jangan lanjutkan memilih percakapan sampai user memasukkan kunci
+        return; 
       }
     } else {
-      // Jika tidak terenkripsi
       setDaftarPesan(percakapan.pesan);
     }
     
@@ -393,13 +375,10 @@ const ChatContainer: React.FC = () => {
     }
   }, [percakapanId]);
   const handleLogin = (kunci: string) => {
-    // Gunakan pemeriksaan kondisi untuk menghindari loop pembaruan berlebihan
     if (kunciEnkripsi !== kunci) {
       setKunciEnkripsi(kunci);
       setKunciEnkripsiState(kunci);
       setIsAuthenticated(true);
-      
-      // Simpan kunci di localStorage selalu dengan format yang benar
       const kunciEncoded = btoa(kunci);
       localStorage.setItem('wahit_kunci_hash', kunciEncoded);
       localStorage.setItem('wahit_authenticated', 'true');
@@ -412,13 +391,10 @@ const ChatContainer: React.FC = () => {
       setTimeout(() => {
         setNotifikasi(null);
       }, 3000);
-      
-      // Cek jika percakapan aktif terenkripsi dan perlu didekripsi
       if (percakapanId) {
         const percakapanAktif = getPercakapan(percakapanId);
         if (percakapanAktif?.terenkripsi) {
           try {
-            // Coba dekripsi percakapan dengan kunci yang baru
             const percakapanDekripsi = dekripsiPercakapan(percakapanAktif, kunci);
             setDaftarPesan(percakapanDekripsi.pesan || []);
           } catch (error) {
@@ -437,7 +413,6 @@ const ChatContainer: React.FC = () => {
     setKunciEnkripsiState(null);
     setIsAuthenticated(false);
     
-    // Hapus data autentikasi dari localStorage
     localStorage.removeItem('wahit_kunci_hash');
     localStorage.removeItem('wahit_authenticated');
     
@@ -518,7 +493,6 @@ const ChatContainer: React.FC = () => {
       return false;
     }
   };  const handleBukaPercakapanTerenkripsi = (id: string) => {
-    // Coba dapatkan kunci dari state atau dari localStorage
     let kunciUntukDekripsi = kunciEnkripsi;
     
     if (!kunciUntukDekripsi && typeof window !== 'undefined') {
@@ -526,7 +500,6 @@ const ChatContainer: React.FC = () => {
       if (savedKunci) {
         try {
           kunciUntukDekripsi = atob(savedKunci);
-          // Update state jika kunci ditemukan di localStorage
           if (kunciUntukDekripsi) {
             setKunciEnkripsiState(kunciUntukDekripsi);
             setKunciEnkripsi(kunciUntukDekripsi);
