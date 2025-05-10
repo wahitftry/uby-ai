@@ -52,19 +52,19 @@ const FaqItem: React.FC<FaqItemProps> = ({ pertanyaan, jawaban, nomorId }) => {
 export default function FaqPage() {
   const daftarFaq = [
     {
-      pertanyaan: "Apa itu Wahit AI?",
-      jawaban: "Wahit AI adalah asisten kecerdasan buatan (AI) yang dirancang untuk membantu pengguna dalam berbagai tugas seperti menjawab pertanyaan, membuat konten, memberikan analisis, dan banyak lagi. Asisten ini dikembangkan untuk memberikan respons yang akurat, bermanfaat, dan relevan sesuai dengan kebutuhan pengguna.",
+      pertanyaan: "Apa itu UBY AI?",
+      jawaban: "UBY AI adalah asisten kecerdasan buatan (AI) yang dirancang untuk membantu pengguna dalam berbagai tugas seperti menjawab pertanyaan, membuat konten, memberikan analisis, dan banyak lagi. Asisten ini dikembangkan untuk memberikan respons yang akurat, bermanfaat, dan relevan sesuai dengan kebutuhan pengguna.",
     },
     {
-      pertanyaan: "Bagaimana cara menggunakan Wahit AI?",
-      jawaban: "Cukup ketik pertanyaan atau permintaan Anda di kolom input pada halaman beranda, lalu tekan Enter atau klik tombol kirim. Wahit AI akan merespons dengan jawaban terbaik berdasarkan pertanyaan tersebut. Anda juga dapat menyesuaikan model AI dan gaya respons sesuai preferensi.",
+      pertanyaan: "Bagaimana cara menggunakan UBY AI?",
+      jawaban: "Cukup ketik pertanyaan atau permintaan Anda di kolom input pada halaman beranda, lalu tekan Enter atau klik tombol kirim. UBY AI akan merespons dengan jawaban terbaik berdasarkan pertanyaan tersebut. Anda juga dapat menyesuaikan model AI dan gaya respons sesuai preferensi.",
     },
     {
-      pertanyaan: "Model AI apa saja yang tersedia di Wahit AI?",
-      jawaban: "Wahit AI menyediakan beberapa model AI canggih seperti GPT-4o, Gemini Pro, Claude 3 Opus, Llama 3 70B, dan Mistral Large. Setiap model memiliki karakteristik dan kemampuan yang berbeda untuk menyesuaikan dengan kebutuhan Anda.",
+      pertanyaan: "Model AI apa saja yang tersedia di UBY AI?",
+      jawaban: "UBY AI menyediakan beberapa model AI canggih seperti GPT-4o, Gemini Pro, Claude 3 Opus, Llama 3 70B, dan Mistral Large. Setiap model memiliki karakteristik dan kemampuan yang berbeda untuk menyesuaikan dengan kebutuhan Anda.",
     },
     {
-      pertanyaan: "Apakah percakapan saya dengan Wahit AI disimpan?",
+      pertanyaan: "Apakah percakapan saya dengan UBY AI disimpan?",
       jawaban: "Ya, percakapan Anda disimpan di browser lokal (localStorage) untuk memudahkan Anda mengakses kembali riwayat percakapan. Namun, data ini hanya tersimpan di perangkat Anda dan tidak dikirimkan ke server kami kecuali saat sedang berkomunikasi dengan API model AI.",
     },
     {
@@ -76,12 +76,12 @@ export default function FaqPage() {
       jawaban: "Ya, Anda dapat mengekspor percakapan ke PDF atau membagikannya melalui tautan dengan mengklik tombol titik tiga di sudut kanan atas area chat. Opsi ekspor dan berbagi tersedia untuk percakapan yang telah Anda lakukan.",
     },
     {
-      pertanyaan: "Berapa banyak konteks yang dapat diingat oleh Wahit AI?",
-      jawaban: "Wahit AI dapat mengingat hingga 30 pesan sebelumnya dalam sebuah percakapan, sehingga memungkinkan Anda untuk memiliki diskusi yang lebih mendalam dan berkelanjutan. Indikator context window di bagian atas chat menunjukkan jumlah pesan yang saat ini digunakan.",
+      pertanyaan: "Berapa banyak konteks yang dapat diingat oleh UBY AI?",
+      jawaban: "UBY AI dapat mengingat hingga 30 pesan sebelumnya dalam sebuah percakapan, sehingga memungkinkan Anda untuk memiliki diskusi yang lebih mendalam dan berkelanjutan. Indikator context window di bagian atas chat menunjukkan jumlah pesan yang saat ini digunakan.",
     },
     {
-      pertanyaan: "Apakah Wahit AI dapat membantu dengan kode pemrograman?",
-      jawaban: "Tentu saja! Wahit AI dapat membantu menulis, menjelaskan, atau men-debug kode dalam berbagai bahasa pemrograman seperti JavaScript, Python, Java, dan banyak lagi. Cukup jelaskan kebutuhan Anda dengan detail untuk mendapatkan bantuan yang tepat.",
+      pertanyaan: "Apakah UBY AI dapat membantu dengan kode pemrograman?",
+      jawaban: "Tentu saja! UBY AI dapat membantu menulis, menjelaskan, atau men-debug kode dalam berbagai bahasa pemrograman seperti JavaScript, Python, Java, dan banyak lagi. Cukup jelaskan kebutuhan Anda dengan detail untuk mendapatkan bantuan yang tepat.",
     },
     {
       pertanyaan: "Apakah ada batasan karakter atau token per pesan?",
@@ -100,7 +100,7 @@ export default function FaqPage() {
           <div className="relative h-10 w-10 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">W</div>
           </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">Wahit AI</h1>
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">UBY AI</h1>
         </div>
         <div className="flex gap-4">
           <Link href="/" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
@@ -121,7 +121,7 @@ export default function FaqPage() {
       <main className="container mx-auto px-6 py-12 max-w-3xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-3">Pertanyaan yang Sering Diajukan</h1>
-          <p className="text-xl text-foreground/70">Jawaban untuk pertanyaan umum tentang Wahit AI</p>
+          <p className="text-xl text-foreground/70">Jawaban untuk pertanyaan umum tentang UBY AI</p>
         </div>
 
         <div className="bg-background/50 border border-black/5 dark:border-white/5 rounded-2xl p-6 shadow-sm backdrop-blur-sm">
@@ -138,13 +138,13 @@ export default function FaqPage() {
         <div className="mt-12 text-center">
           <p className="text-foreground/70 mb-4">Tidak menemukan jawaban yang Anda cari?</p>
           <Link href="/" className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl hover:opacity-90 transition-opacity">
-            Tanyakan kepada Wahit AI
+            Tanyakan kepada UBY AI
           </Link>
         </div>
       </main>
       
       <footer className="mt-auto py-6 text-center text-sm text-foreground/50 border-t border-black/5 dark:border-white/5">
-        © {new Date().getFullYear()} Wahit Fitriyanto - Semua hak dilindungi
+        © {new Date().getFullYear()} Wahit Fitriyanto, Amelia, Arthur, Qois - Semua hak dilindungi
       </footer>
     </div>
   );

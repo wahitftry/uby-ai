@@ -24,21 +24,16 @@ const EksporPDF: React.FC<EksporPDFProps> = ({
         onError('Tidak dapat menemukan elemen percakapan');
         return;
       }
-      
-      // Tambahkan class untuk styling khusus ekspor
       containerPesan.classList.add('ekspor-pdf-aktif');
-      
-      // Buat PDF
       const pdf = new jsPDF('p', 'mm', 'a4');
       const lebarHalaman = pdf.internal.pageSize.getWidth();
       const marginKiri = 10;
       const marginKanan = 10;
       const lebarKonten = lebarHalaman - marginKiri - marginKanan;
       
-      // Tambahkan judul
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(16);
-      pdf.text(judulPercakapan || "Wahit AI - Percakapan", lebarHalaman / 2, 15, { align: 'center' });
+      pdf.text(judulPercakapan || "UBY AI - Percakapan", lebarHalaman / 2, 15, { align: 'center' });
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(10);
       pdf.text(`Diekspor pada: ${new Date().toLocaleString('id-ID')}`, lebarHalaman / 2, 22, { align: 'center' });
@@ -46,15 +41,11 @@ const EksporPDF: React.FC<EksporPDFProps> = ({
       let posisiY = 30;
       const marginAntarPesan = 10;
       const marginBawah = 20;
-      
-      // Proses setiap pesan
+    
       for (let i = 0; i < daftarPesan.length; i++) {
         const pesan = daftarPesan[i];
-        
-        // Buat elemen pesan sementara untuk dirender
         const elemenPesan = document.createElement('div');
-        
-        // Styling elemen pesan
+  
         elemenPesan.style.margin = '10px';
         elemenPesan.style.padding = '10px';
         elemenPesan.style.borderRadius = '5px';
@@ -69,59 +60,38 @@ const EksporPDF: React.FC<EksporPDFProps> = ({
           elemenPesan.style.backgroundColor = '#F3F4F6';
           elemenPesan.style.color = 'black';
         }
-        
-        // Tambahkan header pengirim
         const headerPengirim = document.createElement('div');
         headerPengirim.style.marginBottom = '5px';
         headerPengirim.style.fontWeight = 'bold';
-        headerPengirim.textContent = pesan.pengirim === 'user' ? 'Anda' : 'Wahit AI';
+        headerPengirim.textContent = pesan.pengirim === 'user' ? 'Anda' : 'UBY AI';
         elemenPesan.appendChild(headerPengirim);
-        
-        // Tambahkan isi pesan
         const isiPesan = document.createElement('div');
         isiPesan.textContent = pesan.pesan;
         elemenPesan.appendChild(isiPesan);
-        
-        // Tambahkan timestamp
         const timestamp = document.createElement('div');
         timestamp.style.marginTop = '5px';
         timestamp.style.fontSize = '10px';
         timestamp.style.opacity = '0.7';
         timestamp.textContent = new Date(pesan.timestamp).toLocaleString('id-ID');
         elemenPesan.appendChild(timestamp);
-        
-        // Tambahkan ke body untuk merender sementara
         document.body.appendChild(elemenPesan);
-        
-        // Konversi elemen ke canvas
         const canvas = await html2canvas(elemenPesan, {
           scale: 2,
           logging: false,
           useCORS: true
         });
-        
-        // Hapus elemen sementara
         document.body.removeChild(elemenPesan);
-        
-        // Konversi canvas ke gambar
         const imgData = canvas.toDataURL('image/png');
         const imgHeight = canvas.height * lebarKonten / canvas.width;
-        
-        // Cek apakah perlu halaman baru
         if (posisiY + imgHeight > pdf.internal.pageSize.getHeight() - marginBawah) {
           pdf.addPage();
           posisiY = 20;
         }
-        
-        // Tambahkan gambar ke PDF
         pdf.addImage(imgData, 'PNG', marginKiri, posisiY, lebarKonten, imgHeight);
         posisiY += imgHeight + marginAntarPesan;
       }
-      
-      // Hapus class styling ekspor
       containerPesan.classList.remove('ekspor-pdf-aktif');
       
-      // Simpan dan unduh PDF
       const namaFile = `wahit-ai_${judulPercakapan.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().toISOString().slice(0, 10)}.pdf`;
       pdf.save(namaFile);
       

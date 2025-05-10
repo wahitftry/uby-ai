@@ -65,7 +65,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ pesan }) => {
           )}
           {!isPengguna && (
             <div className="flex items-center ml-1.5 text-xs">
-              <span className="font-medium text-blue-500 dark:text-blue-400">Wahit AI</span>
+              <span className="font-medium text-blue-500 dark:text-blue-400">UBY AI</span>
             </div>
           )}
         </div>

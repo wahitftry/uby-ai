@@ -11,7 +11,7 @@ const ChatContainer = dynamic(() => import('./components/ChatContainer'), {
         <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 animate-pulse flex items-center justify-center">
           <span className="text-white font-bold text-xl">W</span>
         </div>
-        <div className="mt-4 text-foreground/70 animate-pulse">Memuat Wahit AI...</div>
+        <div className="mt-4 text-foreground/70 animate-pulse">Memuat UBY AI...</div>
       </div>
     </div>
   )
@@ -23,7 +23,7 @@ export default function Home() {
           <div className="relative h-10 w-10 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">W</div>
           </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">Wahit AI</h1>
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">UBY AI</h1>
         </div>
         <div className="flex gap-4">
           <Link href="/" className="text-sm font-medium text-foreground transition-colors">
@@ -48,7 +48,7 @@ export default function Home() {
       </main>
       
       <footer className="mt-auto py-4 text-center text-xs text-foreground/50">
-        © {new Date().getFullYear()} Wahit Fitriyanto - Semua hak dilindungi
+        © {new Date().getFullYear()} Wahit Fitriyanto, Amelia, Arthur, Qois - Semua hak dilindungi
       </footer>
     </div>
   );

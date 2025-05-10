@@ -36,7 +36,7 @@ export default function ShowcasePage() {
           <div className="relative h-10 w-10 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">W</div>
           </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">Wahit AI</h1>
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">UBY AI</h1>
         </div>
         <div className="flex gap-4">
           <Link href="/" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
@@ -56,8 +56,8 @@ export default function ShowcasePage() {
 
       <main className="container mx-auto px-6 py-12 max-w-6xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-3">Kemampuan Wahit AI</h1>
-          <p className="text-xl text-foreground/70 max-w-3xl mx-auto">Wahit AI dapat membantu dalam berbagai tugas. Berikut adalah contoh kemampuan yang dapat dimanfaatkan.</p>
+          <h1 className="text-4xl font-bold mb-3">Kemampuan UBY AI</h1>
+          <p className="text-xl text-foreground/70 max-w-3xl mx-auto">UBY AI dapat membantu dalam berbagai tugas. Berikut adalah contoh kemampuan yang dapat dimanfaatkan.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -155,7 +155,7 @@ export default function ShowcasePage() {
           <h2 className="text-2xl font-semibold mb-6">Manfaatkan Konteks yang Lebih Besar</h2>
           <div className="max-w-3xl mx-auto bg-gradient-to-r from-blue-500 to-purple-600 p-[1px] rounded-2xl">
             <div className="bg-background rounded-2xl p-8">
-              <p className="mb-4 text-xl">Wahit AI kini mendukung context window hingga 30 pesan, sehingga percakapan bisa lebih panjang dan komprehensif.</p>
+              <p className="mb-4 text-xl">UBY AI kini mendukung context window hingga 30 pesan, sehingga percakapan bisa lebih panjang dan komprehensif.</p>
               <Link href="/" className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl hover:opacity-90 transition-opacity">
                 Coba Sekarang
               </Link>
@@ -165,7 +165,7 @@ export default function ShowcasePage() {
       </main>
       
       <footer className="mt-auto py-6 text-center text-sm text-foreground/50 border-t border-black/5 dark:border-white/5">
-        © {new Date().getFullYear()} Wahit Fitriyanto - Semua hak dilindungi
+        © {new Date().getFullYear()} Wahit Fitriyanto, Amelia, Arthur, Qois - Semua hak dilindungi
       </footer>
     </div>
   );

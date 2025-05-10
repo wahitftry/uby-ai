@@ -490,7 +490,7 @@ const ChatContainer: React.FC = () => {
                     }}
                   >
                     <span className="truncate">
-                      {getPercakapan(percakapanId || '')?.judul || 'Wahit AI - Percakapan'}
+                      {getPercakapan(percakapanId || '')?.judul || 'UBY AI - Percakapan'}
                     </span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
                       <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
@@ -530,7 +530,7 @@ const ChatContainer: React.FC = () => {
                 
                 <EksporPDF 
                   daftarPesan={daftarPesan} 
-                  judulPercakapan={getPercakapan(percakapanId || '')?.judul || 'Wahit AI - Percakapan'}
+                  judulPercakapan={getPercakapan(percakapanId || '')?.judul || 'UBY AI - Percakapan'}
                   onSelesai={() => {
                     setEksporMenuVisible(false);
                     setNotifikasi({
@@ -599,7 +599,7 @@ const ChatContainer: React.FC = () => {
               <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-blue-500 to-purple-600 shadow-lg flex items-center justify-center mb-6">
                 <span className="text-white text-2xl font-bold">W</span>
               </div>
-              <h2 className="text-xl font-bold mb-2 text-foreground/90">Selamat datang di Wahit AI</h2>
+              <h2 className="text-xl font-bold mb-2 text-foreground/90">Selamat datang di UBY AI</h2>
               <p className="text-sm text-foreground/60 max-w-md">
                 Tanyakan apapun dan dapatkan jawaban instan. Saya siap membantu Anda dengan berbagai pertanyaan.
               </p>
@@ -618,7 +618,7 @@ const ChatContainer: React.FC = () => {
                   <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '200ms' }}></div>
                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '400ms' }}></div>
                   <span className="ml-2 text-xs font-medium">
-                    Wahit AI sedang mengetik ({daftarModelAI.find(m => m.id === modelTerpilih)?.nama || modelTerpilih})
+                    UBY AI sedang mengetik ({daftarModelAI.find(m => m.id === modelTerpilih)?.nama || modelTerpilih})
                   </span>
                 </div>
               </div>

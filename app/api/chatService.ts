@@ -67,8 +67,6 @@ export const daftarGayaRespons: GayaResponsOption[] = [
 ];
 
 let daftarGayaResponsKustom: GayaResponsKustom[] = [];
-
-// Load gaya respons kustom dari local storage
 if (typeof window !== 'undefined') {
   try {
     const gayaResponsKustomString = localStorage.getItem('wahit_gaya_respons_kustom');
@@ -109,14 +107,11 @@ export function getGayaResponsById(id: string): GayaResponsOption | undefined {
 
 export function simpanGayaResponsKustom(gaya: GayaResponsKustom): boolean {
   try {
-    // Check if it's an edit or a new style
     const index = daftarGayaResponsKustom.findIndex(g => g.id === gaya.id);
     
     if (index !== -1) {
-      // Update existing style
       daftarGayaResponsKustom[index] = gaya;
     } else {
-      // Add new style
       daftarGayaResponsKustom.push(gaya);
     }
     
@@ -137,13 +132,11 @@ export function hapusGayaResponsKustom(id: string): boolean {
     daftarGayaResponsKustom = daftarGayaResponsKustom.filter(gaya => gaya.id !== id);
     
     if (daftarGayaResponsKustom.length === indexSebelum) {
-      return false; // Tidak ada yang dihapus
+      return false; 
     }
     
     if (typeof window !== 'undefined') {
       localStorage.setItem('wahit_gaya_respons_kustom', JSON.stringify(daftarGayaResponsKustom));
-      
-      // Jika gaya respons yang aktif dihapus, kembali ke default
       if (gayaResponsSekarang === id) {
         setGayaResponsSekarang('santai');
       }
@@ -163,8 +156,6 @@ export async function kirimPesan(pesan: string): Promise<ResponseAPIType> {
     if (riwayatPesan.length > 30) {
       riwayatPesan = riwayatPesan.slice(-30);
     }
-    
-    // Periksa jika gaya respons kustom atau bawaan
     const gayaRespons = getGayaResponsById(gayaResponsSekarang);
     const petunjukKustom = gayaRespons?.petunjuk || '';
     
@@ -290,10 +281,7 @@ export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanTy
       dibookmark: indexPercakapan >= 0 && daftarPercakapan[indexPercakapan].dibookmark ? true : false,
       privateMode: modePrivasi && !percakapanLama?.privateMode ? modePrivasi : percakapanLama?.privateMode
     };
-
-    // Jika mode privasi aktif, kita tidak perlu menyimpan ke localStorage
     if (!modePrivasi || !percakapan.privateMode) {
-      // Jika kunci enkripsi ada dan percakapan perlu disimpan, enkripsi dulu
       let percakapanToSave = { ...percakapan };
       if (kunciEnkripsi && isAuthenticated) {
         percakapanToSave = enkripsiPercakapan(percakapanToSave, kunciEnkripsi);
@@ -455,8 +443,6 @@ export interface SearchFilter {
 export function cariPercakapanLanjutan(filter: SearchFilter): PercakapanType[] {
   try {
     let hasilPercakapan = getDaftarPercakapan();
-    
-    // Filter berdasarkan kata kunci
     if (filter.keyword && filter.keyword.trim() !== '') {
       const keyword = filter.keyword.toLowerCase().trim();
       hasilPercakapan = hasilPercakapan.filter(percakapan => {
@@ -465,8 +451,6 @@ export function cariPercakapanLanjutan(filter: SearchFilter): PercakapanType[] {
         return judulMatch || pesanMatch;
       });
     }
-    
-    // Filter berdasarkan tanggal mulai
     if (filter.tanggalMulai) {
       const tanggalMulai = new Date(filter.tanggalMulai);
       tanggalMulai.setHours(0, 0, 0, 0);
@@ -476,7 +460,6 @@ export function cariPercakapanLanjutan(filter: SearchFilter): PercakapanType[] {
       });
     }
     
-    // Filter berdasarkan tanggal selesai
     if (filter.tanggalSelesai) {
       const tanggalSelesai = new Date(filter.tanggalSelesai);
       tanggalSelesai.setHours(23, 59, 59, 999);
@@ -485,15 +468,11 @@ export function cariPercakapanLanjutan(filter: SearchFilter): PercakapanType[] {
         return tanggalPercakapan <= tanggalSelesai;
       });
     }
-    
-    // Filter berdasarkan model AI
     if (filter.modelAI && filter.modelAI.length > 0) {
       hasilPercakapan = hasilPercakapan.filter(percakapan => 
         filter.modelAI?.includes(percakapan.model)
       );
     }
-    
-    // Filter berdasarkan bookmark
     if (filter.bookmark === true) {
       hasilPercakapan = hasilPercakapan.filter(p => p.dibookmark);
     }
@@ -551,38 +530,28 @@ export function setGayaResponsSekarang(gayaId: string): boolean {
   return false;
 }
 
-// Fungsi untuk mengatur kunci enkripsi
 export const setKunciEnkripsi = (kunci: string | null) => {
   kunciEnkripsi = kunci;
   isAuthenticated = kunci !== null;
 };
-
-// Fungsi untuk mendapatkan status autentikasi
 export const getIsAuthenticated = () => {
   return isAuthenticated;
 };
-
-// Fungsi untuk mengatur mode privasi
 export const setModePrivasi = (status: boolean) => {
   modePrivasi = status;
   if (typeof window !== 'undefined') {
     localStorage.setItem('wahit_mode_privasi', status.toString());
   }
 };
-
-// Fungsi untuk mendapatkan status mode privasi
 export const getModePrivasi = () => {
   return modePrivasi;
 };
-
-// Fungsi untuk mengenkripsi percakapan
 export const enkripsiPercakapan = (percakapan: PercakapanType, kunci: string): PercakapanType => {
   if (!kunci) {
     return percakapan;
   }
   
   try {
-    // Buat salinan percakapan dan tandai sebagai terenkripsi
     const percakapanEnkripsi = {
       ...percakapan,
       terenkripsi: true,
@@ -595,15 +564,12 @@ export const enkripsiPercakapan = (percakapan: PercakapanType, kunci: string): P
     return percakapan;
   }
 };
-
-// Fungsi untuk mendekripsi percakapan
 export const dekripsiPercakapan = (percakapan: PercakapanType, kunci: string): PercakapanType => {
   if (!percakapan.terenkripsi || !kunci) {
     return percakapan;
   }
   
   try {
-    // Buat salinan percakapan dan hapus tanda terenkripsi
     const percakapanDekripsi = {
       ...percakapan,
       terenkripsi: false,
@@ -616,24 +582,18 @@ export const dekripsiPercakapan = (percakapan: PercakapanType, kunci: string): P
     return percakapan;
   }
 };
-
-// Fungsi untuk mengenkripsi pesan dalam percakapan
 const enkripsiPesanDalamPercakapan = (daftarPesan: DaftarPesanType, kunci: string): DaftarPesanType => {
   return daftarPesan.map(pesan => ({
     ...pesan,
     pesan: enkripsiData(pesan.pesan, kunci)
   }));
 };
-
-// Fungsi untuk mendekripsi pesan dalam percakapan
 const dekripsiPesanDalamPercakapan = (daftarPesan: DaftarPesanType, kunci: string): DaftarPesanType => {
   return daftarPesan.map(pesan => ({
     ...pesan,
     pesan: dekripsiData(pesan.pesan, kunci)
   }));
 };
-
-// Fungsi untuk memeriksa apakah percakapan terenkripsi
 export const cekPercakapanTerenkripsi = (id: string): boolean => {
   try {
     const storedDataRaw = localStorage.getItem(`wahit_percakapan_${id}`);
@@ -646,17 +606,13 @@ export const cekPercakapanTerenkripsi = (id: string): boolean => {
   }
 };
 
-// Template Prompt
 let daftarTemplatePrompt: TemplatePromptType[] = [];
-
-// Load template prompt dari local storage
 if (typeof window !== 'undefined') {
   try {
     const templateString = localStorage.getItem('wahit_template_prompt');
     if (templateString) {
       daftarTemplatePrompt = JSON.parse(templateString);
     } else {
-      // Template default
       daftarTemplatePrompt = [
         {
           id: 'template-default-1',
@@ -691,14 +647,11 @@ export function getDaftarTemplatePrompt(): TemplatePromptType[] {
 
 export function simpanTemplatePrompt(template: TemplatePromptType): boolean {
   try {
-    // Check if it's an edit or a new template
     const index = daftarTemplatePrompt.findIndex(t => t.id === template.id);
     
     if (index !== -1) {
-      // Update existing template
       daftarTemplatePrompt[index] = template;
     } else {
-      // Add new template
       daftarTemplatePrompt.push(template);
     }
     
@@ -719,7 +672,7 @@ export function hapusTemplatePrompt(id: string): boolean {
     daftarTemplatePrompt = daftarTemplatePrompt.filter(template => template.id !== id);
     
     if (daftarTemplatePrompt.length === indexSebelum) {
-      return false; // Tidak ada yang dihapus
+      return false;
     }
     
     if (typeof window !== 'undefined') {
@@ -733,10 +686,7 @@ export function hapusTemplatePrompt(id: string): boolean {
   }
 }
 
-// Code Snippet
 let daftarCodeSnippet: CodeSnippetType[] = [];
-
-// Load code snippet dari local storage
 if (typeof window !== 'undefined') {
   try {
     const codeSnippetString = localStorage.getItem('wahit_code_snippet');
@@ -754,14 +704,11 @@ export function getDaftarCodeSnippet(): CodeSnippetType[] {
 
 export function simpanCodeSnippet(snippet: CodeSnippetType): boolean {
   try {
-    // Check if it's an edit or a new snippet
     const index = daftarCodeSnippet.findIndex(s => s.id === snippet.id);
     
     if (index !== -1) {
-      // Update existing snippet
       daftarCodeSnippet[index] = snippet;
     } else {
-      // Add new snippet
       daftarCodeSnippet.push(snippet);
     }
     
@@ -782,7 +729,7 @@ export function hapusCodeSnippet(id: string): boolean {
     daftarCodeSnippet = daftarCodeSnippet.filter(snippet => snippet.id !== id);
     
     if (daftarCodeSnippet.length === indexSebelum) {
-      return false; // Tidak ada yang dihapus
+      return false;
     }
     
     if (typeof window !== 'undefined') {
