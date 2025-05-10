@@ -16,13 +16,22 @@ import {
   setPercakapanAktif,
   generateId,
   editJudulPercakapan,
-  hapusPercakapan
-}from '../api/chatService';
+  hapusPercakapan,
+  setKunciEnkripsi,
+  getIsAuthenticated,
+  setModePrivasi,
+  getModePrivasi,
+  dekripsiPercakapan,
+  cekPercakapanTerenkripsi
+} from '../api/chatService';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import ConversationSidebar from './ConversationSidebar';
 import EksporPDF from './EksporPDF';
 import ContextWindowIndicator from './ContextWindowIndicator';
+import AuthManager from './AuthManager';
+import PrivacyModeToggle from './PrivacyModeToggle';
+import EncryptionAlert from './EncryptionAlert';
 
 const ChatContainer: React.FC = () => {
   const [daftarPesan, setDaftarPesan] = useState<DaftarPesanType>([]);
@@ -35,6 +44,11 @@ const ChatContainer: React.FC = () => {
   const [notifikasi, setNotifikasi] = useState<{pesan: string, tipe: 'sukses' | 'error'} | null>(null);
   const [judulPercakapan, setJudulPercakapan] = useState<string>('');
   const [editJudul, setEditJudul] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(getIsAuthenticated());
+  const [modePrivasi, setModePrivasiState] = useState<boolean>(getModePrivasi());
+  const [showEncryptionAlert, setShowEncryptionAlert] = useState<boolean>(false);
+  const [selectedEncryptedConversation, setSelectedEncryptedConversation] = useState<string | null>(null);
+  const [kunciEnkripsi, setKunciEnkripsiState] = useState<string | null>(null);
   
   const pesanContainerRef = useRef<HTMLDivElement>(null);
   const pesanSelamatDatangDitampilkan = useRef<boolean>(false);
@@ -283,6 +297,130 @@ const ChatContainer: React.FC = () => {
       }
     }
   }, [percakapanId]);
+  
+  const handleLogin = (kunci: string) => {
+    setKunciEnkripsi(kunci);
+    setKunciEnkripsiState(kunci);
+    setIsAuthenticated(true);
+    
+    setNotifikasi({
+      pesan: 'Berhasil masuk dengan kunci enkripsi',
+      tipe: 'sukses'
+    });
+    
+    setTimeout(() => {
+      setNotifikasi(null);
+    }, 3000);
+    
+    if (selectedEncryptedConversation) {
+      bukaPercakapanTerenkripsi(selectedEncryptedConversation, kunci);
+    }
+  };
+  
+  const handleLogout = () => {
+    setKunciEnkripsi(null);
+    setKunciEnkripsiState(null);
+    setIsAuthenticated(false);
+    
+    const percakapanAktif = getPercakapan(percakapanId || '');
+    if (percakapanAktif?.terenkripsi) {
+      const idBaru = generateId();
+      setPercakapanId(idBaru);
+      setDaftarPesan([]);
+      setJudulPercakapan('Percakapan Baru');
+      simpanPercakapan(idBaru, 'Percakapan Baru', []);
+    }
+    
+    setNotifikasi({
+      pesan: 'Berhasil keluar',
+      tipe: 'sukses'
+    });
+    
+    setTimeout(() => {
+      setNotifikasi(null);
+    }, 3000);
+  };
+  
+  const toggleModePrivasi = () => {
+    const newStatus = !modePrivasi;
+    setModePrivasiState(newStatus);
+    setModePrivasi(newStatus);
+    
+    setNotifikasi({
+      pesan: `Mode privasi ${newStatus ? 'diaktifkan' : 'dinonaktifkan'}`,
+      tipe: 'sukses'
+    });
+    
+    setTimeout(() => {
+      setNotifikasi(null);
+    }, 3000);
+  };
+  
+  const bukaPercakapanTerenkripsi = (id: string, kunci: string) => {
+    try {
+      const percakapan = getPercakapan(id);
+      if (!percakapan) throw new Error('Percakapan tidak ditemukan');
+      const percakapanDekripsi = dekripsiPercakapan(percakapan, kunci);
+      setDaftarPesan(percakapanDekripsi.pesan || []);
+      setModelTerpilih(percakapanDekripsi.model || getModelSekarang());
+      setPercakapanId(id);
+      setJudulPercakapan(percakapanDekripsi.judul || 'Percakapan');
+      setModelSekarang(percakapanDekripsi.model || getModelSekarang());
+      
+      if (percakapanDekripsi.gayaRespons) {
+        setGayaResponsTerpilih(percakapanDekripsi.gayaRespons);
+        setGayaResponsSekarang(percakapanDekripsi.gayaRespons);
+      }
+      setShowEncryptionAlert(false);
+      setSelectedEncryptedConversation(null);
+      
+      setNotifikasi({
+        pesan: 'Percakapan terenkripsi berhasil dibuka',
+        tipe: 'sukses'
+      });
+      
+      setTimeout(() => {
+        setNotifikasi(null);
+      }, 3000);
+      
+      return true;
+    } catch (error) {
+      console.error('Gagal membuka percakapan terenkripsi:', error);
+      
+      setNotifikasi({
+        pesan: 'Kunci yang Anda masukkan salah',
+        tipe: 'error'
+      });
+      
+      setTimeout(() => {
+        setNotifikasi(null);
+      }, 3000);
+      
+      return false;
+    }
+  };
+  const handleBukaPercakapanTerenkripsi = (id: string) => {
+    if (isAuthenticated && kunciEnkripsi) {
+      return bukaPercakapanTerenkripsi(id, kunciEnkripsi);
+    } else {
+      setSelectedEncryptedConversation(id);
+      setShowEncryptionAlert(true);
+      return false;
+    }
+  };
+  
+  const handleUnlockEncryptedConversation = (kunci: string) => {
+    if (selectedEncryptedConversation) {
+      const berhasil = bukaPercakapanTerenkripsi(selectedEncryptedConversation, kunci);
+      
+      if (berhasil) {
+        setKunciEnkripsi(kunci);
+        setKunciEnkripsiState(kunci);
+        setIsAuthenticated(true);
+      }
+    }
+  };
+
   return (
     <>      <ConversationSidebar
         visible={sidebarVisible}
@@ -290,11 +428,12 @@ const ChatContainer: React.FC = () => {
         onSelectConversation={handlePilihPercakapan}
         onNewChat={buatPercakapanBaru}
         percakapanAktif={percakapanId}
+        onOpenEncryptedConversation={handleBukaPercakapanTerenkripsi}
       />
         <div className="flex flex-col h-full w-full">
         <div className="relative flex-1 overflow-hidden">          <button 
             onClick={alihkanSidebar}
-            className="absolute top-2 left-2 z-10 p-2 rounded-full bg-black/5 dark:bg-white/5 text-foreground/70 hover:text-foreground/90 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+            className="absolute top-2 left-2 z-10 p-2 rounded-full bg-black/5 dark:bg.white/5 text-foreground/70 hover:text-foreground/90 hover:bg-black/10 dark:hover:bg.white/10 transition-colors"
             title="Riwayat Percakapan"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -311,7 +450,7 @@ const ChatContainer: React.FC = () => {
             <div className="absolute top-2 right-2 z-10 flex gap-2">
             <button
               onClick={() => setEksporMenuVisible(!eksporMenuVisible)}
-              className="p-2 rounded-full bg-black/5 dark:bg-white/5 text-foreground/70 hover:text-foreground/90 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+              className="p-2 rounded-full bg-black/5 dark:bg.white/5 text-foreground/70 hover:text-foreground/90 hover:bg.black/10 dark:hover:bg.white/10 transition-colors"
               title="Opsi Percakapan"
               disabled={daftarPesan.length === 0}
             >
@@ -324,7 +463,7 @@ const ChatContainer: React.FC = () => {
             
             <button 
               onClick={buatPercakapanBaru}
-              className="p-2 rounded-full bg-black/5 dark:bg-white/5 text-foreground/70 hover:text-foreground/90 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+              className="p-2 rounded-full bg-black/5 dark:bg.white/5 text-foreground/70 hover:text-foreground/90 hover:bg.black/10 dark:hover:bg.white/10 transition-colors"
               title="Percakapan Baru"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -334,12 +473,12 @@ const ChatContainer: React.FC = () => {
             </button>
           </div>
             {eksporMenuVisible && daftarPesan.length > 0 && (
-            <div className="absolute top-14 right-2 z-20 bg-background/95 border border-black/10 dark:border-white/10 rounded-lg shadow-lg p-3 backdrop-blur-sm w-64">
+            <div className="absolute top-14 right-2 z-20 bg-background/95 border border-black/10 dark:border.white/10 rounded-lg shadow-lg p-3 backdrop-blur-sm w-64">
               <h3 className="text-sm font-medium mb-2 text-center">Opsi Percakapan</h3>
                 <div className="space-y-2">
                 {!editJudul ? (
                   <div 
-                    className="text-sm font-medium p-1 rounded hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors flex justify-between items-center" 
+                    className="text-sm font-medium p-1 rounded hover:bg-black/5 dark:hover:bg.white/5 cursor-pointer transition-colors flex justify-between items-center" 
                     onClick={() => {
                       if (percakapanId) {
                         const percakapan = getPercakapan(percakapanId);
@@ -363,7 +502,7 @@ const ChatContainer: React.FC = () => {
                       type="text"
                       value={judulPercakapan}
                       onChange={(e) => setJudulPercakapan(e.target.value)}
-                      className="flex-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded py-1 px-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="flex-1 bg-black/5 dark:bg.white/5 border border-black/10 dark:border.white/10 rounded py-1 px-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                       autoFocus
                       placeholder="Judul percakapan..."
                     />
@@ -377,7 +516,7 @@ const ChatContainer: React.FC = () => {
                     </button>
                     <button
                       onClick={() => setEditJudul(false)}
-                      className="p-1 rounded bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 transition-colors"
+                      className="p-1 rounded bg-black/10 dark:bg.white/10 hover:bg-black/20 dark:hover:bg.white/20 transition-colors"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -473,7 +612,7 @@ const ChatContainer: React.FC = () => {
           
           {sedangMengirim && (
             <div className="flex items-center space-x-3 text-foreground/70 pl-4 mt-3 animate-fadeIn">
-              <div className="flex h-8 items-center rounded-full bg-black/5 dark:bg-white/5 px-3 py-1">
+              <div className="flex h-8 items-center rounded-full bg-black/5 dark:bg.white/5 px-3 py-1">
                 <div className="flex space-x-1 items-center">
                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
                   <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '200ms' }}></div>
@@ -508,10 +647,36 @@ const ChatContainer: React.FC = () => {
               </div>
             </div>
           )}
+          
+          {showEncryptionAlert && (
+            <EncryptionAlert
+              onUnlock={handleUnlockEncryptedConversation}
+              onCancel={() => {
+                setShowEncryptionAlert(false);
+                setSelectedEncryptedConversation(null);
+              }}
+            />
+          )}
         </div>
       </div>
       
       <div className="px-4 pt-3 pb-4 border-t border-black/5 dark:border-white/5 bg-gradient-to-b from-transparent to-background/40 backdrop-blur-sm">
+        <div className="flex flex-wrap justify-between items-center mb-2">
+          <div className="mb-2 sm:mb-0">
+            <AuthManager 
+              onLogin={handleLogin}
+              onLogout={handleLogout}
+              isAuthenticated={isAuthenticated}
+            />
+          </div>
+          <div className="mb-2 sm:mb-0">
+            <PrivacyModeToggle 
+              isPrivacyMode={modePrivasi}
+              togglePrivacyMode={toggleModePrivasi}
+            />
+          </div>
+        </div>
+        
         <ChatInput 
           mengirimPesan={handleKirimPesan} 
           sedangMengirim={sedangMengirim} 

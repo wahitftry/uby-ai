@@ -5,22 +5,27 @@ export async function POST(request: Request) {
   try {    const data = await request.json();
     const model = data.model || 'gpt-4o';
     const gayaRespons = data.gayaRespons || 'santai';
+    const gayaResponsPetunjuk = data.gayaResponsPetunjuk || '';
     
     let petunjukSistem = 'Kamu adalah asisten AI yang membantu pengguna. Berikan jawaban yang sopan, akurat, dan bermanfaat.';
     
-    switch(gayaRespons) {
-      case 'formal':
-        petunjukSistem += ' Gunakan bahasa formal dan profesional. Hindari bahasa gaul atau ekspresi informal.';
-        break;
-      case 'santai':
-        petunjukSistem += ' Gunakan bahasa yang santai dan ramah, seperti berbicara dengan teman. Boleh menggunakan bahasa percakapan sehari-hari.';
-        break;
-      case 'panjang':
-        petunjukSistem += ' Berikan jawaban yang detail, menyeluruh dan mendalam. Jelaskan dengan contoh jika perlu.';
-        break;
-      case 'pendek':
-        petunjukSistem += ' Berikan jawaban yang singkat, padat dan jelas. Langsung ke poin utama tanpa elaborasi yang berlebihan.';
-        break;
+    if (gayaResponsPetunjuk) {
+      petunjukSistem += ' ' + gayaResponsPetunjuk;
+    } else {
+      switch(gayaRespons) {
+        case 'formal':
+          petunjukSistem += ' Gunakan bahasa formal dan profesional. Hindari bahasa gaul atau ekspresi informal.';
+          break;
+        case 'santai':
+          petunjukSistem += ' Gunakan bahasa yang santai dan ramah, seperti berbicara dengan teman. Boleh menggunakan bahasa percakapan sehari-hari.';
+          break;
+        case 'panjang':
+          petunjukSistem += ' Berikan jawaban yang detail, menyeluruh dan mendalam. Jelaskan dengan contoh jika perlu.';
+          break;
+        case 'pendek':
+          petunjukSistem += ' Berikan jawaban yang singkat, padat dan jelas. Langsung ke poin utama tanpa elaborasi yang berlebihan.';
+          break;
+      }
     }
     
     const messages = data.riwayatPesan || [

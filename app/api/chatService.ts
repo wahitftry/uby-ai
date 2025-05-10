@@ -1,19 +1,30 @@
-import { ResponseAPIType, ModelAIType, PercakapanType, DaftarPercakapanType, DaftarPesanType, PesanType } from '../types/chat';
+import { ResponseAPIType, ModelAIType, PercakapanType, DaftarPercakapanType, DaftarPesanType, PesanType, GayaResponsOption, GayaResponsKustom, TemplatePromptType, CodeSnippetType } from '../types/chat';
+import { enkripsiData, dekripsiData, isDataTerenkripsi } from '../utils/enkripsi';
 
 let riwayatPesan: { role: string, content: string }[] = [];
 let modelSekarang: string = 'gpt-4o';
 let percakapanAktif: string | null = null;
 let gayaResponsSekarang: string = 'santai';
+let modePrivasi: boolean = false;
+let kunciEnkripsi: string | null = null;
+let isAuthenticated: boolean = false;
 
 if (typeof window !== 'undefined') {
+  const modePrivasiTersimpan = localStorage.getItem('wahit_mode_privasi');
+  if (modePrivasiTersimpan) {
+    modePrivasi = modePrivasiTersimpan === 'true';
+  }
+
   const percakapanAktifTersimpan = localStorage.getItem('wahit_percakapan_aktif');
   if (percakapanAktifTersimpan) {
     percakapanAktif = percakapanAktifTersimpan;
   }
+  
   const modelTersimpan = localStorage.getItem('wahit_model_sekarang');
   if (modelTersimpan) {
     modelSekarang = modelTersimpan;
   }
+  
   const gayaResponsTersimpan = localStorage.getItem('wahit_gaya_respons');
   if (gayaResponsTersimpan) {
     gayaResponsSekarang = gayaResponsTersimpan;
@@ -28,28 +39,122 @@ export const daftarModelAI: ModelAIType[] = [
   { id: 'mistral-large', nama: 'Mistral Large' }
 ];
 
-export const daftarGayaRespons = [
+export const daftarGayaRespons: GayaResponsOption[] = [
   { 
     id: 'formal', 
     nama: 'Formal', 
-    deskripsi: 'Jawaban dengan bahasa formal dan profesional' 
+    deskripsi: 'Jawaban dengan bahasa formal dan profesional',
+    petunjuk: 'Gunakan bahasa formal dan profesional. Hindari bahasa gaul atau ekspresi informal.'
   },
   { 
     id: 'santai', 
     nama: 'Santai', 
-    deskripsi: 'Jawaban dengan bahasa yang santai dan ramah' 
+    deskripsi: 'Jawaban dengan bahasa yang santai dan ramah',
+    petunjuk: 'Gunakan bahasa yang santai dan ramah, seperti berbicara dengan teman. Boleh menggunakan bahasa percakapan sehari-hari.'
   },
   { 
     id: 'panjang', 
     nama: 'Panjang', 
-    deskripsi: 'Jawaban dengan penjelasan yang detail dan mendalam' 
+    deskripsi: 'Jawaban dengan penjelasan yang detail dan mendalam',
+    petunjuk: 'Berikan jawaban yang detail, menyeluruh dan mendalam. Jelaskan dengan contoh jika perlu.'
   },
   { 
     id: 'pendek', 
     nama: 'Pendek', 
-    deskripsi: 'Jawaban singkat dan langsung pada inti permasalahan' 
+    deskripsi: 'Jawaban singkat dan langsung pada inti permasalahan',
+    petunjuk: 'Berikan jawaban yang singkat, padat dan jelas. Langsung ke poin utama tanpa elaborasi yang berlebihan.'
   }
 ];
+
+let daftarGayaResponsKustom: GayaResponsKustom[] = [];
+
+// Load gaya respons kustom dari local storage
+if (typeof window !== 'undefined') {
+  try {
+    const gayaResponsKustomString = localStorage.getItem('wahit_gaya_respons_kustom');
+    if (gayaResponsKustomString) {
+      daftarGayaResponsKustom = JSON.parse(gayaResponsKustomString);
+    }
+  } catch (e) {
+    console.error('Error loading custom response styles:', e);
+  }
+}
+
+export function getDaftarGayaResponsKustom(): GayaResponsKustom[] {
+  return daftarGayaResponsKustom;
+}
+
+export function getDaftarGayaResponsGabungan(): GayaResponsOption[] {
+  return [
+    ...daftarGayaRespons,
+    ...daftarGayaResponsKustom.map(gaya => ({
+      ...gaya,
+      isKustom: true
+    }))
+  ];
+}
+
+export function getGayaResponsById(id: string): GayaResponsOption | undefined {
+  const gayaResponsBawaan = daftarGayaRespons.find(gaya => gaya.id === id);
+  if (gayaResponsBawaan) return gayaResponsBawaan;
+  
+  const gayaResponsKustom = daftarGayaResponsKustom.find(gaya => gaya.id === id);
+  if (gayaResponsKustom) return {
+    ...gayaResponsKustom,
+    isKustom: true
+  };
+  
+  return undefined;
+}
+
+export function simpanGayaResponsKustom(gaya: GayaResponsKustom): boolean {
+  try {
+    // Check if it's an edit or a new style
+    const index = daftarGayaResponsKustom.findIndex(g => g.id === gaya.id);
+    
+    if (index !== -1) {
+      // Update existing style
+      daftarGayaResponsKustom[index] = gaya;
+    } else {
+      // Add new style
+      daftarGayaResponsKustom.push(gaya);
+    }
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('wahit_gaya_respons_kustom', JSON.stringify(daftarGayaResponsKustom));
+    }
+    
+    return true;
+  } catch (e) {
+    console.error('Error saving custom response style:', e);
+    return false;
+  }
+}
+
+export function hapusGayaResponsKustom(id: string): boolean {
+  try {
+    const indexSebelum = daftarGayaResponsKustom.length;
+    daftarGayaResponsKustom = daftarGayaResponsKustom.filter(gaya => gaya.id !== id);
+    
+    if (daftarGayaResponsKustom.length === indexSebelum) {
+      return false; // Tidak ada yang dihapus
+    }
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('wahit_gaya_respons_kustom', JSON.stringify(daftarGayaResponsKustom));
+      
+      // Jika gaya respons yang aktif dihapus, kembali ke default
+      if (gayaResponsSekarang === id) {
+        setGayaResponsSekarang('santai');
+      }
+    }
+    
+    return true;
+  } catch (e) {
+    console.error('Error deleting custom response style:', e);
+    return false;
+  }
+}
 
 export async function kirimPesan(pesan: string): Promise<ResponseAPIType> {
   try {
@@ -58,6 +163,10 @@ export async function kirimPesan(pesan: string): Promise<ResponseAPIType> {
     if (riwayatPesan.length > 30) {
       riwayatPesan = riwayatPesan.slice(-30);
     }
+    
+    // Periksa jika gaya respons kustom atau bawaan
+    const gayaRespons = getGayaResponsById(gayaResponsSekarang);
+    const petunjukKustom = gayaRespons?.petunjuk || '';
     
     const konfigurasi = {
       method: 'POST',
@@ -68,7 +177,8 @@ export async function kirimPesan(pesan: string): Promise<ResponseAPIType> {
         pesan,
         riwayatPesan,
         model: modelSekarang,
-        gayaRespons: gayaResponsSekarang
+        gayaRespons: gayaResponsSekarang,
+        gayaResponsPetunjuk: petunjukKustom
       })
     };
     
@@ -156,7 +266,9 @@ export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanTy
     } catch (parseError) {
       console.error('Error parsing data percakapan:', parseError);
       daftarPercakapan = [];
-    }    const indexPercakapan = daftarPercakapan.findIndex(p => p.id === id);
+    }    
+    
+    const indexPercakapan = daftarPercakapan.findIndex(p => p.id === id);
     
     const percakapanLama = indexPercakapan >= 0 ? daftarPercakapan[indexPercakapan] : null;
     const judulPercakapan = judul || 
@@ -175,20 +287,31 @@ export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanTy
       model: modelSekarang,
       gayaRespons: gayaResponsSekarang,
       pesan: [...pesanValid],
-      dibookmark: indexPercakapan >= 0 && daftarPercakapan[indexPercakapan].dibookmark ? true : false
+      dibookmark: indexPercakapan >= 0 && daftarPercakapan[indexPercakapan].dibookmark ? true : false,
+      privateMode: modePrivasi && !percakapanLama?.privateMode ? modePrivasi : percakapanLama?.privateMode
     };
 
-    if (indexPercakapan >= 0) {
-      daftarPercakapan[indexPercakapan] = percakapan;
-    } else {
-      daftarPercakapan.unshift(percakapan);
+    // Jika mode privasi aktif, kita tidak perlu menyimpan ke localStorage
+    if (!modePrivasi || !percakapan.privateMode) {
+      // Jika kunci enkripsi ada dan percakapan perlu disimpan, enkripsi dulu
+      let percakapanToSave = { ...percakapan };
+      if (kunciEnkripsi && isAuthenticated) {
+        percakapanToSave = enkripsiPercakapan(percakapanToSave, kunciEnkripsi);
+      }
+
+      if (indexPercakapan >= 0) {
+        daftarPercakapan[indexPercakapan] = percakapanToSave;
+      } else {
+        daftarPercakapan.unshift(percakapanToSave);
+      }
+
+      try {
+        localStorage.setItem('wahit_percakapan', JSON.stringify(daftarPercakapan));
+      } catch (storageError) {
+        console.error('Error menyimpan ke localStorage:', storageError);
+      }
     }
 
-    try {
-      localStorage.setItem('wahit_percakapan', JSON.stringify(daftarPercakapan));
-    } catch (storageError) {
-      console.error('Error menyimpan ke localStorage:', storageError);
-    }
     setPercakapanAktif(id);
     
     return percakapan;
@@ -321,6 +444,67 @@ export function getDaftarPercakapanBookmark(): PercakapanType[] {
   return daftarPercakapan.filter(p => p.dibookmark);
 }
 
+export interface SearchFilter {
+  keyword?: string | null;
+  tanggalMulai?: string | null;
+  tanggalSelesai?: string | null;
+  modelAI?: string[] | null;
+  bookmark?: boolean | null;
+}
+
+export function cariPercakapanLanjutan(filter: SearchFilter): PercakapanType[] {
+  try {
+    let hasilPercakapan = getDaftarPercakapan();
+    
+    // Filter berdasarkan kata kunci
+    if (filter.keyword && filter.keyword.trim() !== '') {
+      const keyword = filter.keyword.toLowerCase().trim();
+      hasilPercakapan = hasilPercakapan.filter(percakapan => {
+        const judulMatch = percakapan.judul.toLowerCase().includes(keyword);
+        const pesanMatch = percakapan.pesan.some(p => p.pesan.toLowerCase().includes(keyword));
+        return judulMatch || pesanMatch;
+      });
+    }
+    
+    // Filter berdasarkan tanggal mulai
+    if (filter.tanggalMulai) {
+      const tanggalMulai = new Date(filter.tanggalMulai);
+      tanggalMulai.setHours(0, 0, 0, 0);
+      hasilPercakapan = hasilPercakapan.filter(percakapan => {
+        const tanggalPercakapan = new Date(percakapan.tanggalDibuat);
+        return tanggalPercakapan >= tanggalMulai;
+      });
+    }
+    
+    // Filter berdasarkan tanggal selesai
+    if (filter.tanggalSelesai) {
+      const tanggalSelesai = new Date(filter.tanggalSelesai);
+      tanggalSelesai.setHours(23, 59, 59, 999);
+      hasilPercakapan = hasilPercakapan.filter(percakapan => {
+        const tanggalPercakapan = new Date(percakapan.terakhirDiubah || percakapan.tanggalDibuat);
+        return tanggalPercakapan <= tanggalSelesai;
+      });
+    }
+    
+    // Filter berdasarkan model AI
+    if (filter.modelAI && filter.modelAI.length > 0) {
+      hasilPercakapan = hasilPercakapan.filter(percakapan => 
+        filter.modelAI?.includes(percakapan.model)
+      );
+    }
+    
+    // Filter berdasarkan bookmark
+    if (filter.bookmark === true) {
+      hasilPercakapan = hasilPercakapan.filter(p => p.dibookmark);
+    }
+    
+    return hasilPercakapan;
+  } catch (error) {
+    console.error('Error mencari percakapan lanjutan:', error);
+    return [];
+  }
+}
+
 export function editJudulPercakapan(id: string, judulBaru: string): boolean {
   try {
     if (typeof window === 'undefined') {
@@ -365,4 +549,249 @@ export function setGayaResponsSekarang(gayaId: string): boolean {
   }
   
   return false;
+}
+
+// Fungsi untuk mengatur kunci enkripsi
+export const setKunciEnkripsi = (kunci: string | null) => {
+  kunciEnkripsi = kunci;
+  isAuthenticated = kunci !== null;
+};
+
+// Fungsi untuk mendapatkan status autentikasi
+export const getIsAuthenticated = () => {
+  return isAuthenticated;
+};
+
+// Fungsi untuk mengatur mode privasi
+export const setModePrivasi = (status: boolean) => {
+  modePrivasi = status;
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('wahit_mode_privasi', status.toString());
+  }
+};
+
+// Fungsi untuk mendapatkan status mode privasi
+export const getModePrivasi = () => {
+  return modePrivasi;
+};
+
+// Fungsi untuk mengenkripsi percakapan
+export const enkripsiPercakapan = (percakapan: PercakapanType, kunci: string): PercakapanType => {
+  if (!kunci) {
+    return percakapan;
+  }
+  
+  try {
+    // Buat salinan percakapan dan tandai sebagai terenkripsi
+    const percakapanEnkripsi = {
+      ...percakapan,
+      terenkripsi: true,
+      pesan: enkripsiPesanDalamPercakapan(percakapan.pesan, kunci)
+    };
+    
+    return percakapanEnkripsi;
+  } catch (error) {
+    console.error("Gagal mengenkripsi percakapan:", error);
+    return percakapan;
+  }
+};
+
+// Fungsi untuk mendekripsi percakapan
+export const dekripsiPercakapan = (percakapan: PercakapanType, kunci: string): PercakapanType => {
+  if (!percakapan.terenkripsi || !kunci) {
+    return percakapan;
+  }
+  
+  try {
+    // Buat salinan percakapan dan hapus tanda terenkripsi
+    const percakapanDekripsi = {
+      ...percakapan,
+      terenkripsi: false,
+      pesan: dekripsiPesanDalamPercakapan(percakapan.pesan, kunci)
+    };
+    
+    return percakapanDekripsi;
+  } catch (error) {
+    console.error("Gagal mendekripsi percakapan:", error);
+    return percakapan;
+  }
+};
+
+// Fungsi untuk mengenkripsi pesan dalam percakapan
+const enkripsiPesanDalamPercakapan = (daftarPesan: DaftarPesanType, kunci: string): DaftarPesanType => {
+  return daftarPesan.map(pesan => ({
+    ...pesan,
+    pesan: enkripsiData(pesan.pesan, kunci)
+  }));
+};
+
+// Fungsi untuk mendekripsi pesan dalam percakapan
+const dekripsiPesanDalamPercakapan = (daftarPesan: DaftarPesanType, kunci: string): DaftarPesanType => {
+  return daftarPesan.map(pesan => ({
+    ...pesan,
+    pesan: dekripsiData(pesan.pesan, kunci)
+  }));
+};
+
+// Fungsi untuk memeriksa apakah percakapan terenkripsi
+export const cekPercakapanTerenkripsi = (id: string): boolean => {
+  try {
+    const storedDataRaw = localStorage.getItem(`wahit_percakapan_${id}`);
+    if (!storedDataRaw) return false;
+    
+    const storedData = JSON.parse(storedDataRaw);
+    return storedData.terenkripsi === true;
+  } catch (error) {
+    return false;
+  }
+};
+
+// Template Prompt
+let daftarTemplatePrompt: TemplatePromptType[] = [];
+
+// Load template prompt dari local storage
+if (typeof window !== 'undefined') {
+  try {
+    const templateString = localStorage.getItem('wahit_template_prompt');
+    if (templateString) {
+      daftarTemplatePrompt = JSON.parse(templateString);
+    } else {
+      // Template default
+      daftarTemplatePrompt = [
+        {
+          id: 'template-default-1',
+          nama: 'Ringkasan Artikel',
+          deskripsi: 'Meringkas artikel menjadi 3 poin utama',
+          template: 'Tolong ringkas artikel berikut menjadi 3 poin utama dengan format bullet point:\n\n[input]',
+          kategori: 'Writing',
+          modelDisarankan: 'gpt-4',
+          gayaResponsDisarankan: 'ringkas'
+        },
+        {
+          id: 'template-default-2',
+          nama: 'Analisis Kode',
+          deskripsi: 'Menganalisis kode dan memberikan saran perbaikan',
+          template: 'Tolong analisis kode berikut dan berikan saran untuk perbaikan atau optimalisasi:\n\n```\n[input]\n```',
+          kategori: 'Coding',
+          modelDisarankan: 'gpt-4',
+          gayaResponsDisarankan: 'informatif'
+        }
+      ];
+      
+      localStorage.setItem('wahit_template_prompt', JSON.stringify(daftarTemplatePrompt));
+    }
+  } catch (e) {
+    console.error('Error loading template prompts:', e);
+  }
+}
+
+export function getDaftarTemplatePrompt(): TemplatePromptType[] {
+  return daftarTemplatePrompt;
+}
+
+export function simpanTemplatePrompt(template: TemplatePromptType): boolean {
+  try {
+    // Check if it's an edit or a new template
+    const index = daftarTemplatePrompt.findIndex(t => t.id === template.id);
+    
+    if (index !== -1) {
+      // Update existing template
+      daftarTemplatePrompt[index] = template;
+    } else {
+      // Add new template
+      daftarTemplatePrompt.push(template);
+    }
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('wahit_template_prompt', JSON.stringify(daftarTemplatePrompt));
+    }
+    
+    return true;
+  } catch (e) {
+    console.error('Error saving template prompt:', e);
+    return false;
+  }
+}
+
+export function hapusTemplatePrompt(id: string): boolean {
+  try {
+    const indexSebelum = daftarTemplatePrompt.length;
+    daftarTemplatePrompt = daftarTemplatePrompt.filter(template => template.id !== id);
+    
+    if (daftarTemplatePrompt.length === indexSebelum) {
+      return false; // Tidak ada yang dihapus
+    }
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('wahit_template_prompt', JSON.stringify(daftarTemplatePrompt));
+    }
+    
+    return true;
+  } catch (e) {
+    console.error('Error deleting template prompt:', e);
+    return false;
+  }
+}
+
+// Code Snippet
+let daftarCodeSnippet: CodeSnippetType[] = [];
+
+// Load code snippet dari local storage
+if (typeof window !== 'undefined') {
+  try {
+    const codeSnippetString = localStorage.getItem('wahit_code_snippet');
+    if (codeSnippetString) {
+      daftarCodeSnippet = JSON.parse(codeSnippetString);
+    }
+  } catch (e) {
+    console.error('Error loading code snippets:', e);
+  }
+}
+
+export function getDaftarCodeSnippet(): CodeSnippetType[] {
+  return daftarCodeSnippet;
+}
+
+export function simpanCodeSnippet(snippet: CodeSnippetType): boolean {
+  try {
+    // Check if it's an edit or a new snippet
+    const index = daftarCodeSnippet.findIndex(s => s.id === snippet.id);
+    
+    if (index !== -1) {
+      // Update existing snippet
+      daftarCodeSnippet[index] = snippet;
+    } else {
+      // Add new snippet
+      daftarCodeSnippet.push(snippet);
+    }
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('wahit_code_snippet', JSON.stringify(daftarCodeSnippet));
+    }
+    
+    return true;
+  } catch (e) {
+    console.error('Error saving code snippet:', e);
+    return false;
+  }
+}
+
+export function hapusCodeSnippet(id: string): boolean {
+  try {
+    const indexSebelum = daftarCodeSnippet.length;
+    daftarCodeSnippet = daftarCodeSnippet.filter(snippet => snippet.id !== id);
+    
+    if (daftarCodeSnippet.length === indexSebelum) {
+      return false; // Tidak ada yang dihapus
+    }
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('wahit_code_snippet', JSON.stringify(daftarCodeSnippet));
+    }
+    
+    return true;
+  } catch (e) {
+    console.error('Error deleting code snippet:', e);
+    return false;
+  }
 }

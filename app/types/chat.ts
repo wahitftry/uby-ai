@@ -17,6 +17,9 @@ export type PercakapanType = {
   gayaRespons?: string;
   pesan: DaftarPesanType;
   dibookmark?: boolean;
+  terenkripsi?: boolean;
+  requireAuth?: boolean;
+  privateMode?: boolean;
 };
 
 export type DaftarPercakapanType = PercakapanType[];
@@ -32,10 +35,45 @@ export type ModelAIType = {
   nama: string;
 };
 
-export type GayaResponsType = 'formal' | 'santai' | 'panjang' | 'pendek';
+export type TemplatePromptType = {
+  id: string;
+  nama: string;
+  deskripsi: string;
+  template: string;
+  kategori?: string;
+  modelDisarankan?: string;
+  gayaResponsDisarankan?: string;
+};
+
+export type DaftarTemplatePromptType = TemplatePromptType[];
+
+export type GayaResponsType = string;
 
 export type GayaResponsOption = {
   id: GayaResponsType;
   nama: string;
   deskripsi: string;
+  petunjuk: string;
+  isKustom?: boolean;
+};
+
+export type GayaResponsKustom = {
+  id: string;
+  nama: string;
+  deskripsi: string;
+  petunjuk: string;
+};
+
+export type DaftarGayaResponsKustom = GayaResponsKustom[];
+
+export type CodeSnippetType = {
+  id: string;
+  nama: string;
+  deskripsi?: string;
+  kode: string;
+  bahasa: string;
+  kategori?: string;
+  tag?: string[];
+  createdAt: number;
+  updatedAt: number;
 };
