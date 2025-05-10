@@ -20,15 +20,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
   daftarModel
 }) => {
   const [pesan, setPesan] = useState<string>('');
-  
-  const handleKirim = () => {
+    const handleKirim = () => {
     if (pesan.trim() && !sedangMengirim) {
       mengirimPesan(pesan);
       setPesan('');
     }
   };
   
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleTekanTombol = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleKirim();
@@ -48,9 +47,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <textarea
           className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl p-4 pr-16 outline-none resize-none min-h-[80px] max-h-[200px] text-sm md:text-base placeholder:text-foreground/40 transition-all duration-200 focus:shadow-md focus:border-blue-500/30"
           placeholder="Ketik pesan Anda di sini..."
-          value={pesan}
-          onChange={(e) => setPesan(e.target.value)}
-          onKeyDown={handleKeyDown}
+          value={pesan}          onChange={(e) => setPesan(e.target.value)}
+          onKeyDown={handleTekanTombol}
           disabled={sedangMengirim}
           rows={1}
           style={{

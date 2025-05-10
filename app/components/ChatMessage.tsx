@@ -6,9 +6,7 @@ interface ChatMessageProps {
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ pesan }) => {
-  const isPengguna = pesan.pengirim === 'user';
-  
-  return (
+  const isPengguna = pesan.pengirim === 'user';  return (
     <div className={`flex w-full ${isPengguna ? 'justify-end' : 'justify-start'} mb-5 group`}>
       <div 
         className={`relative max-w-[85%] md:max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm transition-all duration-200 ${

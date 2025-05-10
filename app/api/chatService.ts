@@ -4,6 +4,17 @@ let riwayatPesan: { role: string, content: string }[] = [];
 let modelSekarang: string = 'gpt-4o';
 let percakapanAktif: string | null = null;
 
+if (typeof window !== 'undefined') {
+  const percakapanAktifTersimpan = localStorage.getItem('wahit_percakapan_aktif');
+  if (percakapanAktifTersimpan) {
+    percakapanAktif = percakapanAktifTersimpan;
+  }
+  const modelTersimpan = localStorage.getItem('wahit_model_sekarang');
+  if (modelTersimpan) {
+    modelSekarang = modelTersimpan;
+  }
+}
+
 export const daftarModelAI: ModelAIType[] = [
   { id: 'gpt-4o', nama: 'GPT-4o' },
   { id: 'gemini-pro', nama: 'Gemini Pro' },
@@ -69,12 +80,21 @@ export function resetRiwayatPesan() {
 }
 
 export function getModelSekarang() {
+  if (typeof window !== 'undefined') {
+    const modelTersimpan = localStorage.getItem('wahit_model_sekarang');
+    if (modelTersimpan) {
+      modelSekarang = modelTersimpan;
+    }
+  }
   return modelSekarang;
 }
 
 export function setModelSekarang(modelId: string) {
   if (daftarModelAI.some(model => model.id === modelId)) {
     modelSekarang = modelId;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('wahit_model_sekarang', modelId);
+    }
     return { status: 'success', model: modelSekarang };
   }
   return { status: 'error', pesan: 'Model tidak valid' };
@@ -84,8 +104,7 @@ export function generateId(): string {
   return Date.now().toString() + Math.random().toString(36).substring(2, 10);
 }
 
-export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanType): PercakapanType {
-  try {
+export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanType): PercakapanType {  try {
     if (typeof window === 'undefined') {
       throw new Error('localStorage tidak tersedia');
     }
@@ -166,9 +185,9 @@ export function hapusPercakapan(id: string): boolean {
     const daftarBaru = daftarPercakapan.filter(p => p.id !== id);
     
     localStorage.setItem('wahit_percakapan', JSON.stringify(daftarBaru));
-    
-    if (percakapanAktif === id) {
+      if (percakapanAktif === id) {
       percakapanAktif = null;
+      localStorage.removeItem('wahit_percakapan_aktif');
     }
     
     return true;
@@ -180,8 +199,24 @@ export function hapusPercakapan(id: string): boolean {
 
 export function setPercakapanAktif(id: string | null) {
   percakapanAktif = id;
+  
+  if (typeof window !== 'undefined') {
+    if (id === null) {
+      localStorage.removeItem('wahit_percakapan_aktif');
+    } else {
+      localStorage.setItem('wahit_percakapan_aktif', id);
+    }
+  }
 }
 
 export function getPercakapanAktif(): string | null {
+  if (typeof window !== 'undefined') {
+    const idTersimpan = localStorage.getItem('wahit_percakapan_aktif');
+    if (idTersimpan) {
+      percakapanAktif = idTersimpan;
+      return idTersimpan;
+    }
+  }
+  
   return percakapanAktif;
 }

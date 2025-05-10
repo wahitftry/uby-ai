@@ -31,15 +31,13 @@ const ChatContainer: React.FC = () => {
       pesanContainerRef.current.scrollTop = pesanContainerRef.current.scrollHeight;
     }
   }, [daftarPesan]);
-  
-  useEffect(() => {
-    const savedId = getPercakapanAktif();
-    if (savedId) {
-      const percakapan = getPercakapan(savedId);
+    useEffect(() => {    const idTersimpan = getPercakapanAktif();
+    if (idTersimpan) {
+      const percakapan = getPercakapan(idTersimpan);
       if (percakapan) {
         setDaftarPesan(percakapan.pesan);
         setModelTerpilih(percakapan.model);
-        setPercakapanId(savedId);
+        setPercakapanId(idTersimpan);
         setModelSekarang(percakapan.model);
         pesanSelamatDatangDitampilkan.current = true;
         return;
@@ -100,7 +98,7 @@ const ChatContainer: React.FC = () => {
     pesanSelamatDatangDitampilkan.current = false;
   };
   
-  const handleSelectConversation = (percakapan: PercakapanType) => {
+  const handlePilihPercakapan = (percakapan: PercakapanType) => {
     setDaftarPesan(percakapan.pesan);
     setModelTerpilih(percakapan.model);
     setPercakapanId(percakapan.id);
@@ -108,8 +106,7 @@ const ChatContainer: React.FC = () => {
     setModelSekarang(percakapan.model);
     setSidebarVisible(false);
   };
-  
-  const toggleSidebar = () => {
+    const alihkanSidebar = () => {
     setSidebarVisible(!sidebarVisible);
   };
   
@@ -120,19 +117,17 @@ const ChatContainer: React.FC = () => {
     }
   }, []);
   return (
-    <>
-      <ConversationSidebar
+    <>      <ConversationSidebar
         visible={sidebarVisible}
         onClose={() => setSidebarVisible(false)}
-        onSelectConversation={handleSelectConversation}
+        onSelectConversation={handlePilihPercakapan}
         onNewChat={buatPercakapanBaru}
         percakapanAktif={percakapanId}
       />
       
       <div className="flex flex-col h-full w-full">
-        <div className="relative flex-1 overflow-hidden">
-          <button 
-            onClick={toggleSidebar}
+        <div className="relative flex-1 overflow-hidden">          <button 
+            onClick={alihkanSidebar}
             className="absolute top-2 left-2 z-10 p-2 rounded-full bg-black/5 dark:bg-white/5 text-foreground/70 hover:text-foreground/90 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
             title="Riwayat Percakapan"
           >

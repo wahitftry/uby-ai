@@ -19,36 +19,32 @@ export default function ConversationSidebar({
 }: ConversationSidebarProps) {
   const [daftarPercakapan, setDaftarPercakapan] = useState<DaftarPercakapanType>([]);
   const [pencarian, setPencarian] = useState('');
-
   useEffect(() => {
     if (visible) {
-      loadConversations();
+      muatPercakapan();
     }
   }, [visible]);
 
-  const loadConversations = () => {
+  const muatPercakapan = () => {
     const percakapan = getDaftarPercakapan();
     setDaftarPercakapan(percakapan);
   };
-
-  const handleDeleteConversation = (id: string, e: React.MouseEvent) => {
+  const handleHapusPercakapan = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     
     if (window.confirm('Apakah Anda yakin ingin menghapus percakapan ini?')) {
       hapusPercakapan(id);
-      loadConversations();
+      muatPercakapan();
       
       if (percakapanAktif === id) {
         onNewChat();
       }
     }
   };
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePencarian = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPencarian(e.target.value);
   };
-
-  const filteredConversations = daftarPercakapan.filter((percakapan) => {
+  const percakapanTerfilter = daftarPercakapan.filter((percakapan) => {
     return percakapan.judul.toLowerCase().includes(pencarian.toLowerCase()) ||
       (percakapan.pesanPertama && percakapan.pesanPertama.toLowerCase().includes(pencarian.toLowerCase()));
   });
@@ -116,9 +112,8 @@ export default function ConversationSidebar({
           <div className="relative">
             <input
               type="text"
-              placeholder="Cari percakapan..."
-              value={pencarian}
-              onChange={handleSearch}
+              placeholder="Cari percakapan..."              value={pencarian}
+              onChange={handlePencarian}
               className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg py-2 pl-8 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <svg
@@ -139,8 +134,7 @@ export default function ConversationSidebar({
           </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto">
-          {filteredConversations.length === 0 ? (
+        <div className="flex-1 overflow-y-auto">          {percakapanTerfilter.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 text-center p-4">
               <svg
                 className="h-8 w-8 text-foreground/40 mb-2"
@@ -165,7 +159,7 @@ export default function ConversationSidebar({
             </div>
           ) : (
             <ul className="py-2">
-              {filteredConversations.map((percakapan) => (
+              {percakapanTerfilter.map((percakapan) => (
                 <li 
                   key={percakapan.id}
                   className={`px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors ${percakapanAktif === percakapan.id ? 'bg-black/10 dark:bg-white/10' : ''}`}
@@ -186,9 +180,8 @@ export default function ConversationSidebar({
                           {percakapan.pesanPertama}
                         </p>
                       )}
-                    </div>
-                    <button
-                      onClick={(e) => handleDeleteConversation(percakapan.id, e)}
+                    </div>                    <button
+                      onClick={(e) => handleHapusPercakapan(percakapan.id, e)}
                       className="ml-2 p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-foreground/50 hover:text-foreground/80 transition-colors"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
