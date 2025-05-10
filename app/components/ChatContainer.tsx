@@ -43,16 +43,59 @@ const ChatContainer: React.FC = () => {
   const [eksporMenuVisible, setEksporMenuVisible] = useState<boolean>(false);
   const [notifikasi, setNotifikasi] = useState<{pesan: string, tipe: 'sukses' | 'error'} | null>(null);
   const [judulPercakapan, setJudulPercakapan] = useState<string>('');
-  const [editJudul, setEditJudul] = useState<boolean>(false);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(getIsAuthenticated());
+  const [editJudul, setEditJudul] = useState<boolean>(false);  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(getIsAuthenticated());
   const [modePrivasi, setModePrivasiState] = useState<boolean>(getModePrivasi());
   const [showEncryptionAlert, setShowEncryptionAlert] = useState<boolean>(false);
   const [selectedEncryptedConversation, setSelectedEncryptedConversation] = useState<string | null>(null);
-  const [kunciEnkripsi, setKunciEnkripsiState] = useState<string | null>(null);
+    // Inisialisasi kunci enkripsi dari localStorage jika tersedia
+  const getInitialKunci = (): string | null => {
+    if (typeof window !== 'undefined') {
+      const savedKunci = localStorage.getItem('wahit_kunci_hash');
+      if (savedKunci) {
+        try {
+          return atob(savedKunci);
+        } catch (error) {
+          console.error('Gagal mendekode kunci enkripsi:', error);
+          localStorage.removeItem('wahit_kunci_hash');
+        }
+      }
+    }
+    return null;
+  };
+  const [kunciEnkripsi, setKunciEnkripsiState] = useState<string | null>(getInitialKunci());
   
   const pesanContainerRef = useRef<HTMLDivElement>(null);
   const pesanSelamatDatangDitampilkan = useRef<boolean>(false);
-    useEffect(() => {
+    
+  // Effect untuk mengatur kunci enkripsi saat komponen dimuat
+  useEffect(() => {
+    // Inisialisasi kunci enkripsi dari localStorage
+    const initialKunci = getInitialKunci();
+    
+    if (initialKunci) {
+      // Atur kunci enkripsi ke state dan service
+      setKunciEnkripsiState(initialKunci);
+      setKunciEnkripsi(initialKunci);
+      setIsAuthenticated(true);
+      
+      // Periksa apakah percakapan aktif terenkripsi dan perlu didekripsi
+      const idTersimpan = getPercakapanAktif();
+      if (idTersimpan) {
+        const percakapan = getPercakapan(idTersimpan);
+        if (percakapan && percakapan.terenkripsi) {
+          try {
+            // Coba dekripsi percakapan dengan kunci yang tersedia
+            const percakapanDekripsi = dekripsiPercakapan(percakapan, initialKunci);
+            setDaftarPesan(percakapanDekripsi.pesan || []);
+          } catch (error) {
+            console.error('Gagal mendekripsi percakapan:', error);
+          }
+        }
+      }
+    }
+  }, []);
+  
+  useEffect(() => {
     if (pesanContainerRef.current) {
       pesanContainerRef.current.scrollTop = pesanContainerRef.current.scrollHeight;
     }
@@ -63,7 +106,16 @@ const ChatContainer: React.FC = () => {
       if (idTersimpan) {
         const percakapan = getPercakapan(idTersimpan);
         if (percakapan) {
-          setDaftarPesan(percakapan.pesan || []);
+          // Cek apakah percakapan terenkripsi dan kunci enkripsi tersedia
+          if (percakapan.terenkripsi && kunciEnkripsi) {
+            // Dekripsi percakapan dengan kunci yang tersedia
+            const percakapanDekripsi = dekripsiPercakapan(percakapan, kunciEnkripsi);
+            setDaftarPesan(percakapanDekripsi.pesan || []);
+          } else {
+            // Jika tidak terenkripsi atau tidak ada kunci, gunakan pesan apa adanya
+            setDaftarPesan(percakapan.pesan || []);
+          }
+          
           setModelTerpilih(percakapan.model || getModelSekarang());
           setPercakapanId(idTersimpan);
           setJudulPercakapan(percakapan.judul || 'Percakapan');
@@ -250,9 +302,52 @@ const ChatContainer: React.FC = () => {
     simpanPercakapan(id, 'Percakapan Baru', []);
     
     pesanSelamatDatangDitampilkan.current = true;
-  };
-  const handlePilihPercakapan = (percakapan: PercakapanType) => {
-    setDaftarPesan(percakapan.pesan);
+  };  const handlePilihPercakapan = (percakapan: PercakapanType) => {
+    // Cek jika percakapan terenkripsi
+    if (percakapan.terenkripsi) {
+      // Coba dapatkan kunci dari state atau dari localStorage jika belum ada
+      let kunciUntukDekripsi = kunciEnkripsi;
+      
+      if (!kunciUntukDekripsi && typeof window !== 'undefined') {
+        const savedKunci = localStorage.getItem('wahit_kunci_hash');
+        if (savedKunci) {
+          try {
+            kunciUntukDekripsi = atob(savedKunci);
+            // Update state kunci jika ditemukan di localStorage
+            if (kunciUntukDekripsi) {
+              setKunciEnkripsiState(kunciUntukDekripsi);
+              setKunciEnkripsi(kunciUntukDekripsi);
+              setIsAuthenticated(true);
+            }
+          } catch (error) {
+            console.error('Gagal mendekode kunci enkripsi:', error);
+          }
+        }
+      }
+      
+      if (kunciUntukDekripsi) {
+        try {
+          // Dekripsi percakapan sebelum menampilkan
+          const percakapanDekripsi = dekripsiPercakapan(percakapan, kunciUntukDekripsi);
+          setDaftarPesan(percakapanDekripsi.pesan);
+        } catch (error) {
+          console.error('Gagal mendekripsi percakapan:', error);
+          // Jika gagal mendekripsi, tampilkan dialog minta kunci
+          setShowEncryptionAlert(true);
+          setSelectedEncryptedConversation(percakapan.id);
+          return;
+        }
+      } else {
+        // Jika percakapan terenkripsi tapi tidak ada kunci
+        setShowEncryptionAlert(true);
+        setSelectedEncryptedConversation(percakapan.id);
+        return; // Jangan lanjutkan memilih percakapan sampai user memasukkan kunci
+      }
+    } else {
+      // Jika tidak terenkripsi
+      setDaftarPesan(percakapan.pesan);
+    }
+    
     setModelTerpilih(percakapan.model);
     setPercakapanId(percakapan.id);
     setJudulPercakapan(percakapan.judul);
@@ -297,12 +392,17 @@ const ChatContainer: React.FC = () => {
       }
     }
   }, [percakapanId]);
-    const handleLogin = (kunci: string) => {
+  const handleLogin = (kunci: string) => {
     // Gunakan pemeriksaan kondisi untuk menghindari loop pembaruan berlebihan
     if (kunciEnkripsi !== kunci) {
       setKunciEnkripsi(kunci);
       setKunciEnkripsiState(kunci);
       setIsAuthenticated(true);
+      
+      // Simpan kunci di localStorage selalu dengan format yang benar
+      const kunciEncoded = btoa(kunci);
+      localStorage.setItem('wahit_kunci_hash', kunciEncoded);
+      localStorage.setItem('wahit_authenticated', 'true');
       
       setNotifikasi({
         pesan: 'Berhasil masuk dengan kunci enkripsi',
@@ -313,16 +413,33 @@ const ChatContainer: React.FC = () => {
         setNotifikasi(null);
       }, 3000);
       
+      // Cek jika percakapan aktif terenkripsi dan perlu didekripsi
+      if (percakapanId) {
+        const percakapanAktif = getPercakapan(percakapanId);
+        if (percakapanAktif?.terenkripsi) {
+          try {
+            // Coba dekripsi percakapan dengan kunci yang baru
+            const percakapanDekripsi = dekripsiPercakapan(percakapanAktif, kunci);
+            setDaftarPesan(percakapanDekripsi.pesan || []);
+          } catch (error) {
+            console.error('Gagal mendekripsi percakapan aktif:', error);
+          }
+        }
+      }
+      
       if (selectedEncryptedConversation) {
         bukaPercakapanTerenkripsi(selectedEncryptedConversation, kunci);
       }
     }
   };
-  
-  const handleLogout = () => {
+    const handleLogout = () => {
     setKunciEnkripsi(null);
     setKunciEnkripsiState(null);
     setIsAuthenticated(false);
+    
+    // Hapus data autentikasi dari localStorage
+    localStorage.removeItem('wahit_kunci_hash');
+    localStorage.removeItem('wahit_authenticated');
     
     const percakapanAktif = getPercakapan(percakapanId || '');
     if (percakapanAktif?.terenkripsi) {
@@ -400,10 +517,29 @@ const ChatContainer: React.FC = () => {
       
       return false;
     }
-  };
-  const handleBukaPercakapanTerenkripsi = (id: string) => {
-    if (isAuthenticated && kunciEnkripsi) {
-      return bukaPercakapanTerenkripsi(id, kunciEnkripsi);
+  };  const handleBukaPercakapanTerenkripsi = (id: string) => {
+    // Coba dapatkan kunci dari state atau dari localStorage
+    let kunciUntukDekripsi = kunciEnkripsi;
+    
+    if (!kunciUntukDekripsi && typeof window !== 'undefined') {
+      const savedKunci = localStorage.getItem('wahit_kunci_hash');
+      if (savedKunci) {
+        try {
+          kunciUntukDekripsi = atob(savedKunci);
+          // Update state jika kunci ditemukan di localStorage
+          if (kunciUntukDekripsi) {
+            setKunciEnkripsiState(kunciUntukDekripsi);
+            setKunciEnkripsi(kunciUntukDekripsi);
+            setIsAuthenticated(true);
+          }
+        } catch (error) {
+          console.error('Gagal mendekode kunci enkripsi:', error);
+        }
+      }
+    }
+    
+    if (kunciUntukDekripsi) {
+      return bukaPercakapanTerenkripsi(id, kunciUntukDekripsi);
     } else {
       setSelectedEncryptedConversation(id);
       setShowEncryptionAlert(true);

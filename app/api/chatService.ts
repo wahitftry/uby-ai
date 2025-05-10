@@ -533,8 +533,36 @@ export function setGayaResponsSekarang(gayaId: string): boolean {
 export const setKunciEnkripsi = (kunci: string | null) => {
   kunciEnkripsi = kunci;
   isAuthenticated = kunci !== null;
+  
+  if (typeof window !== 'undefined') {
+    if (kunci) {
+      // Simpan status autentikasi dan kunci hash
+      localStorage.setItem('wahit_authenticated', 'true');
+      // Simpan kunci enkripsi dalam format base64 untuk keamanan
+      localStorage.setItem('wahit_kunci_hash', btoa(kunci));
+    } else {
+      localStorage.removeItem('wahit_authenticated');
+      localStorage.removeItem('wahit_kunci_hash');
+    }
+  }
 };
 export const getIsAuthenticated = () => {
+  if (typeof window !== 'undefined') {
+    const auth = localStorage.getItem('wahit_authenticated');
+    const savedKunci = localStorage.getItem('wahit_kunci_hash');
+    isAuthenticated = (auth === 'true') && (savedKunci !== null);
+    
+    // Jika ada kunci enkripsi tersimpan, pastikan variabel kunciEnkripsi juga diperbarui
+    if (savedKunci && isAuthenticated && kunciEnkripsi === null) {
+      try {
+        kunciEnkripsi = atob(savedKunci);
+      } catch (error) {
+        console.error('Gagal mendekode kunci enkripsi:', error);
+        localStorage.removeItem('wahit_kunci_hash');
+        isAuthenticated = false;
+      }
+    }
+  }
   return isAuthenticated;
 };
 export const setModePrivasi = (status: boolean) => {

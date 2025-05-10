@@ -11,18 +11,20 @@ interface AuthManagerProps {
 
 const AuthManager: React.FC<AuthManagerProps> = ({ onLogin, onLogout, isAuthenticated }) => {
   const [kunci, setKunci] = useState<string>('');
-  const [simpanKunci, setSimpanKunci] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
+  const [error, setError] = useState<string | null>(null);  useEffect(() => {
     const kunciTersimpan = localStorage.getItem('wahit_kunci_hash');
-    if (kunciTersimpan && !isAuthenticated) {
-      const kunciDecoded = atob(kunciTersimpan);
-      if (kunciDecoded && kunciDecoded.length > 0) {
-        onLogin(kunciDecoded);
+    if (kunciTersimpan) {
+      try {
+        const kunciDecoded = atob(kunciTersimpan);
+        if (kunciDecoded && kunciDecoded.length > 0) {
+          onLogin(kunciDecoded);
+        }
+      } catch (error) {
+        console.error('Gagal mendekode kunci dari localStorage:', error);
+        localStorage.removeItem('wahit_kunci_hash');
       }
     }
-  }, []);
-
+  }, [onLogin]);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -34,10 +36,9 @@ const AuthManager: React.FC<AuthManagerProps> = ({ onLogin, onLogout, isAuthenti
     setError(null);
     onLogin(kunci);
     
-    if (simpanKunci) {
-      const kunciEncoded = btoa(kunci);
-      localStorage.setItem('wahit_kunci_hash', kunciEncoded);
-    }
+    // Selalu simpan kunci secara otomatis
+    const kunciEncoded = btoa(kunci);
+    localStorage.setItem('wahit_kunci_hash', kunciEncoded);
   };
 
   const handleLogout = () => {
@@ -79,29 +80,15 @@ const AuthManager: React.FC<AuthManagerProps> = ({ onLogin, onLogout, isAuthenti
           {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
         </div>
         
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="simpanKunci"
-            checked={simpanKunci}
-            onChange={() => setSimpanKunci(!simpanKunci)}
-            className="mr-2"
-          />
-          <label htmlFor="simpanKunci" className="text-xs text-foreground/70">
-            Ingat kunci saya
-          </label>
-        </div>
-        
         <button
           type="submit"
           className="w-full px-3 py-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
         >
           Masuk
-        </button>
-      </form>
+        </button>      </form>
       
       <p className="mt-3 text-xs text-foreground/60">
-        Kunci ini digunakan untuk mengenkripsi data percakapan Anda.
+        Kunci ini digunakan untuk mengenkripsi data percakapan Anda dan akan disimpan otomatis.
       </p>
     </div>
   );
