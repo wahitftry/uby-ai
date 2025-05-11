@@ -30,7 +30,7 @@ export default function Navbar() {
           {pathname === '/faq' && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></span>}
         </Link>
         <Link href="/about" className={`text-sm relative ${pathname === '/about' ? 'font-medium text-foreground' : 'text-foreground/70 hover:text-foreground'} transition-colors`}>
-          Tentang
+          Tentang Kami
           {pathname === '/about' && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></span>}
         </Link>
       </nav>

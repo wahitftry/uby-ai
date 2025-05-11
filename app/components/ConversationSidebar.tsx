@@ -279,7 +279,6 @@ export default function ConversationSidebar({
                           {percakapan.judul}
                         </h3>
                         <div className="flex">
-                          {/* Mode Privasi telah dihapus */}
                         </div>
                       </div>
                       <p className="text-xs text-white/40 truncate mt-1">
