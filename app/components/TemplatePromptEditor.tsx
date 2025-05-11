@@ -107,11 +107,16 @@ const TemplatePromptEditor: React.FC<TemplatePromptEditorProps> = ({
               value={template.nama}
               onChange={handleChange}
               className={`w-full bg-black/5 dark:bg-white/5 border ${
-                errors.nama ? 'border-red-500' : 'border-black/5 dark:border-white/10'
+                errors.nama ? 'border-red-500 ring-1 ring-red-500' : 'border-black/5 dark:border-white/10'
               } rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500`}
               placeholder="cth. Analisis SEO, Tulis Email, Review Kode, dll"
             />
-            {errors.nama && <p className="text-red-500 text-xs mt-1">{errors.nama}</p>}
+            {errors.nama && <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+              </svg>
+              {errors.nama}
+            </p>}
           </div>
 
           <div>

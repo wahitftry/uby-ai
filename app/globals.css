@@ -9,13 +9,10 @@
   --card-border: 1px solid rgba(255, 255, 255, 0.03);
   --transition-bezier: cubic-bezier(0.4, 0, 0.2, 1);
   --blur-strength: 10px;
-}
-
-@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen;
+  --font-mono: monospace;
 }
 
 body {
@@ -133,4 +130,17 @@ body {
 
 .page-transition {
   animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Scrollbar khusus untuk sidebar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thumb-white\/10::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
 }

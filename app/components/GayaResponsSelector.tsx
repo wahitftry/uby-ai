@@ -15,12 +15,14 @@ interface GayaResponsSelectorProps {
   mengubahGayaRespons: (gayaId: string) => void;
   gayaResponsTerpilih: string;
   disabled?: boolean;
+  onOpenManager?: () => void;
 }
 
 const GayaResponsSelector: React.FC<GayaResponsSelectorProps> = ({
   mengubahGayaRespons,
   gayaResponsTerpilih,
-  disabled = false
+  disabled = false,
+  onOpenManager
 }) => {
   const [menuTerbuka, setMenuTerbuka] = useState<boolean>(false);
   const [managerTerbuka, setManagerTerbuka] = useState<boolean>(false);
@@ -84,7 +86,7 @@ const GayaResponsSelector: React.FC<GayaResponsSelectorProps> = ({
         }`}
         title="Pilih gaya respons AI"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
           <polyline points="4 17 10 11 4 5"></polyline>
           <line x1="12" y1="19" x2="20" y2="19"></line>
         </svg>
@@ -92,42 +94,28 @@ const GayaResponsSelector: React.FC<GayaResponsSelectorProps> = ({
           {gayaTerpilih?.nama || 'Santai'}
         </span>
         {gayaTerpilih?.isKustom && (
-          <span className="text-xs px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">Kustom</span>
+          <span className="text-xs px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">Kustom</span>
         )}
       </button>
       
       {menuTerbuka && (
         <div
           ref={menuRef}
-          className="absolute bottom-full left-0 mb-2 w-64 bg-background/95 border border-black/10 dark:border-white/10 rounded-lg shadow-lg backdrop-blur-sm z-20 overflow-hidden"
+          className="absolute bottom-full left-0 mb-2 w-64 bg-white/90 dark:bg-black/90 border border-black/10 dark:border-white/10 rounded-lg shadow-xl backdrop-blur-md z-50 overflow-hidden"
         >
-          <div className="p-2">
-            <h3 className="text-xs text-center font-medium mb-1">Gaya Respons AI</h3>
-            <p className="text-xs text-foreground/50 text-center mb-2">
+          <div className="p-3 border-b border-black/10 dark:border-white/10">
+            <h3 className="text-sm font-medium mb-1">Gaya Respons AI</h3>
+            <p className="text-xs text-foreground/60">
               Pilih bagaimana AI harus menjawab
             </p>
-          </div>          <div className="p-2 border-t border-black/10 dark:border-white/10">
-            <button
-              onClick={() => {
-                setMenuTerbuka(false);
-                setManagerTerbuka(true);
-              }}
-              className="w-full text-xs flex items-center justify-center gap-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 py-1 rounded transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                <path d="M13.5 4.938a7 7 0 11-9.417 1.172 7 7 0 019.416-1.172zM2.5 8a5.5 5.5 0 1111 0 5.5 5.5 0 01-11 0z" />
-                <path d="M10.25 8a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM10.25 5a.75.75 0 01.75.75v.25a.75.75 0 01-1.5 0v-.25a.75.75 0 01.75-.75z" />
-              </svg>
-              Kelola Gaya Respons
-            </button>
           </div>
-
-          <ul className="max-h-56 overflow-y-auto border-t border-black/10 dark:border-white/10">
+          
+          <ul className="max-h-56 overflow-y-auto py-1">
             {daftarGayaGabungan.map((gaya) => (
               <li
                 key={gaya.id}
-                className={`px-3 py-2 cursor-pointer transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${
-                  gayaResponsTerpilih === gaya.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                className={`px-3 py-2 cursor-pointer transition-colors hover:bg-black/5 dark:hover:bg-white/10 ${
+                  gayaResponsTerpilih === gaya.id ? 'bg-blue-500/10 dark:bg-blue-900/30' : ''
                 }`}
                 onClick={() => pilihGayaRespons(gaya.id)}
               >
@@ -135,7 +123,7 @@ const GayaResponsSelector: React.FC<GayaResponsSelectorProps> = ({
                   <div className="flex items-center gap-1.5">
                     <span className="font-medium text-sm">{gaya.nama}</span>
                     {gaya.isKustom && (
-                      <span className="text-xs px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">Kustom</span>
+                      <span className="text-xs px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">Kustom</span>
                     )}
                   </div>
                   {gayaResponsTerpilih === gaya.id && (
@@ -148,6 +136,22 @@ const GayaResponsSelector: React.FC<GayaResponsSelectorProps> = ({
               </li>
             ))}
           </ul>
+          
+          <div className="p-2 border-t border-black/10 dark:border-white/10">
+            <button
+              onClick={() => {
+                setMenuTerbuka(false);
+                onOpenManager?.();
+              }}
+              className="w-full text-sm flex items-center justify-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 py-2 px-3 rounded-lg transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <path d="M13.5 4.938a7 7 0 11-9.417 1.172 7 7 0 019.416-1.172zM2.5 8a5.5 5.5 0 1111 0 5.5 5.5 0 01-11 0z" />
+                <path d="M10.25 8a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM10.25 5a.75.75 0 01.75.75v.25a.75.75 0 01-1.5 0v-.25a.75.75 0 01.75-.75z" />
+              </svg>
+              Kelola Gaya Respons
+            </button>
+          </div>
         </div>
       )}
       

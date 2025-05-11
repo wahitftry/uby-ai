@@ -72,7 +72,7 @@ export default function FaqPage() {
     },
     {
       pertanyaan: "Bagaimana cara mengubah gaya respons AI?",
-      jawaban: "Anda dapat mengubah gaya respons AI dengan mengklik ikon gaya di bawah kolom input chat. Tersedia beberapa gaya seperti Formal (bahasa profesional), Santai (bahasa percakapan), Panjang (jawaban detail), dan Pendek (jawaban singkat dan langsung).",
+      jawaban: "Anda dapat mengubah gaya respons AI dengan mengklik tombol gaya di panel kontrol di bawah kolom input chat. Tersedia beberapa gaya seperti Formal (bahasa profesional), Santai (bahasa percakapan), Ringkas (jawaban singkat), dan Informatif (jawaban detail). Anda juga dapat membuat gaya respons kustom dengan mengklik 'Kelola Gaya Respons' dalam menu gaya.",
     },
     {
       pertanyaan: "Bisakah saya mengekspor atau berbagi percakapan saya?",

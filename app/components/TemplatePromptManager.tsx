@@ -47,9 +47,38 @@ const TemplatePromptManager: React.FC<TemplatePromptManagerProps> = ({
   };
   
   const handleDelete = (id: string) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus template prompt ini?")) {
+    const confirmBox = document.createElement('div');
+    confirmBox.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+    
+    confirmBox.innerHTML = `
+      <div class="bg-background rounded-xl shadow-lg w-full max-w-md overflow-hidden animate-fadeIn">
+        <div class="p-4 border-b border-white/10">
+          <h3 class="text-lg font-semibold">Konfirmasi Hapus</h3>
+        </div>
+        <div class="p-4">
+          <p class="mb-4">Apakah Anda yakin ingin menghapus template prompt ini?</p>
+          <div class="flex justify-end gap-3">
+            <button id="cancelDelete" class="px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 transition-colors text-foreground/70 hover:text-foreground text-sm">
+              Batal
+            </button>
+            <button id="confirmDelete" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors text-sm">
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(confirmBox);
+    
+    document.getElementById('cancelDelete')?.addEventListener('click', () => {
+      document.body.removeChild(confirmBox);
+    });
+    
+    document.getElementById('confirmDelete')?.addEventListener('click', () => {
       onDeleteTemplate(id);
-    }
+      document.body.removeChild(confirmBox);
+    });
   };
   
   const handleSave = (template: TemplatePromptType) => {

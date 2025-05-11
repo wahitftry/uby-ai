@@ -82,9 +82,9 @@ const CodeSnippetManager: React.FC<CodeSnippetManagerProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
-        <div className="bg-background rounded-xl shadow-lg w-full max-w-2xl overflow-hidden">
-          <div className="p-4 border-b border-white/10 flex justify-between items-center">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-black/10 dark:border-white/10">
+          <div className="p-4 border-b border-black/10 dark:border-white/10 flex justify-between items-center bg-white/70 dark:bg-black/70 backdrop-blur-md">
             <h2 className="text-lg font-semibold">Kumpulan Snippet Kode</h2>
             <button 
               onClick={onClose}
@@ -96,7 +96,7 @@ const CodeSnippetManager: React.FC<CodeSnippetManagerProps> = ({
             </button>
           </div>
           
-          <div className="p-4">
+          <div className="p-4 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md">
             <button
               onClick={handleCreate}
               className="mb-4 w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-all"
@@ -112,7 +112,7 @@ const CodeSnippetManager: React.FC<CodeSnippetManagerProps> = ({
                 <input
                   type="text"
                   placeholder="Cari snippet..."
-                  className="w-full px-8 py-2 bg-black/5 dark:bg-white/5 rounded-lg placeholder:text-foreground/40 text-sm"
+                  className="w-full px-8 py-2 bg-black/5 dark:bg-white/5 rounded-lg placeholder:text-foreground/40 text-sm border border-black/5 dark:border-white/10"
                   value={pencarian}
                   onChange={(e) => setPencarian(e.target.value)}
                 />
@@ -135,7 +135,7 @@ const CodeSnippetManager: React.FC<CodeSnippetManagerProps> = ({
               <select
                 value={filterBahasa}
                 onChange={(e) => setFilterBahasa(e.target.value)}
-                className="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-lg p-2 text-sm outline-none"
+                className="bg-black/5 dark:bg.white/5 border border-black/5 dark:border-white/10 rounded-lg p-2 text-sm outline-none"
               >
                 <option value="">Semua Bahasa</option>
                 {daftarBahasa.map((bahasa) => (
@@ -144,7 +144,7 @@ const CodeSnippetManager: React.FC<CodeSnippetManagerProps> = ({
               </select>
             </div>
             
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-2 max-h-96 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
               {filteredSnippets.length === 0 ? (
                 <div className="text-center py-8 text-foreground/60">
                   {pencarian || filterKategori || filterBahasa ? 
@@ -153,14 +153,14 @@ const CodeSnippetManager: React.FC<CodeSnippetManagerProps> = ({
                 </div>
               ) : (
                 filteredSnippets.map((snippet) => (
-                  <div key={snippet.id} className="border border-black/5 dark:border-white/10 rounded-lg p-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                  <div key={snippet.id} className="border border-black/5 dark:border-white/10 rounded-lg p-3 hover:bg-black/5 dark:hover:bg-white/10 transition-colors bg-white/20 dark:bg-white/5">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-medium">{snippet.nama}</h3>
                         {snippet.deskripsi && <p className="text-sm text-foreground/70">{snippet.deskripsi}</p>}
                         <div className="mt-1 flex flex-wrap gap-2">
                           {snippet.kategori && (
-                            <span className="inline-block bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded text-xs text-foreground/70">
+                            <span className="inline-block bg-black/5 dark:bg.white/10 px-2 py-0.5 rounded text-xs text-foreground/70">
                               {snippet.kategori}
                             </span>
                           )}
@@ -187,7 +187,7 @@ const CodeSnippetManager: React.FC<CodeSnippetManagerProps> = ({
                         </button>
                         <button
                           onClick={() => handleEdit(snippet)}
-                          className="p-1 text-foreground/60 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors"
+                          className="p-1 text-foreground/60 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-colors"
                           title="Edit"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -208,7 +208,7 @@ const CodeSnippetManager: React.FC<CodeSnippetManagerProps> = ({
                     </div>
                     
                     <div className="mt-2">
-                      <pre className="text-xs bg-black/5 dark:bg-white/10 rounded p-2 max-h-32 overflow-y-auto font-mono whitespace-pre-wrap">
+                      <pre className="text-xs bg-black/10 dark:bg-white/5 rounded p-2 max-h-32 overflow-y-auto font-mono whitespace-pre-wrap">
                         {snippet.kode}
                       </pre>
                     </div>

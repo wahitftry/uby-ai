@@ -43,9 +43,9 @@ const TemplatePromptSelector: React.FC<TemplatePromptSelectorProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
-      <div className="bg-background rounded-xl shadow-lg w-full max-w-lg overflow-hidden">
-        <div className="p-4 border-b border-white/10 flex justify-between items-center">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-black/10 dark:border-white/10">
+        <div className="p-4 border-b border-black/10 dark:border-white/10 flex justify-between items-center bg-white/70 dark:bg-black/70 backdrop-blur-md">
           <h2 className="text-lg font-semibold">Pilih Template</h2>
           <button 
             onClick={onClose}
@@ -57,13 +57,13 @@ const TemplatePromptSelector: React.FC<TemplatePromptSelectorProps> = ({
           </button>
         </div>
         
-        <div className="p-4">
+        <div className="p-4 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md">
           <div className="flex items-center gap-2 mb-4">
             <div className="relative flex-1">
               <input
                 type="text"
                 placeholder="Cari template..."
-                className="w-full px-8 py-2 bg-black/5 dark:bg-white/5 rounded-lg placeholder:text-foreground/40 text-sm"
+                className="w-full px-8 py-2 bg-black/5 dark:bg-white/5 rounded-lg placeholder:text-foreground/40 text-sm border border-black/5 dark:border-white/10"
                 value={pencarian}
                 onChange={(e) => setPencarian(e.target.value)}
               />
@@ -84,7 +84,7 @@ const TemplatePromptSelector: React.FC<TemplatePromptSelectorProps> = ({
             </select>
           </div>
           
-          <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-96 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
             {filteredTemplates.length === 0 ? (
               <div className="text-center py-8 text-foreground/60">
                 Tidak ada template yang cocok dengan pencarian.
@@ -94,7 +94,7 @@ const TemplatePromptSelector: React.FC<TemplatePromptSelectorProps> = ({
                 <div 
                   key={template.id} 
                   onClick={() => handleSelectTemplate(template)}
-                  className="border border-black/5 dark:border-white/10 rounded-lg p-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                  className="border border-black/5 dark:border-white/10 rounded-lg p-3 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer bg-white/20 dark:bg-white/5"
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -102,7 +102,7 @@ const TemplatePromptSelector: React.FC<TemplatePromptSelectorProps> = ({
                       {template.deskripsi && <p className="text-sm text-foreground/70">{template.deskripsi}</p>}
                       {template.kategori && (
                         <div className="mt-1">
-                          <span className="inline-block bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded text-xs text-foreground/70">
+                          <span className="inline-block bg-black/5 dark:bg-white/10 px-2 py-0.5 rounded text-xs text-foreground/70">
                             {template.kategori}
                           </span>
                         </div>
