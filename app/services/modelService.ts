@@ -11,10 +11,10 @@ if (typeof window !== 'undefined') {
 
 export const daftarModelAI: ModelAIType[] = [
   { id: 'gpt-4o', nama: 'GPT-4o' },
-  { id: 'gemini-pro', nama: 'Gemini Pro' },
-  { id: 'claude-3-opus', nama: 'Claude 3 Opus' },
-  { id: 'llama-3-70b', nama: 'Llama 3 70B' },
-  { id: 'mistral-large', nama: 'Mistral Large' }
+  { id: 'deepseek-v3', nama: 'Deepseek V3' },
+  { id: 'deepseek-r1', nama: 'Deepseek R1 Thinking' },
+  { id: 'o3-mini', nama: 'GPT o3 Mini' },
+  { id: 'phi-4', nama: 'Phi 4' }
 ];
 
 export function getModelSekarang() {

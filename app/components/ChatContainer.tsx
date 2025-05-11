@@ -22,7 +22,7 @@ import ChatInput from './ChatInput';
 import ConversationSidebar from './ConversationSidebar';
 import ConversationHeader from './ConversationHeader';
 import ConversationOptions from './ConversationOptions';
-import { TemplatePromptType, CodeSnippetType } from '../types/chat';
+import { TemplatePromptType, CodeSnippetType, PesanType } from '../types/chat';
 
 interface DialogCallbacks {
   onOpenTemplateSelector: () => void;
@@ -213,9 +213,31 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
     setSedangMengirim(true);
     
     try {
-      const respons = await kirimPesan(isiPesan);
+      const respAiId = generateId();
+      const pesanAiSementara: PesanType = {
+        id: respAiId,
+        pesan: '',
+        pengirim: 'ai',
+        timestamp: Date.now()
+      };
+      
+      setDaftarPesan(prev => [...prev, pesanAiSementara]);
+      const respons = await kirimPesan(isiPesan, (kontenBaru) => {
+        setDaftarPesan(prevPesan => {
+          const pesanIndex = prevPesan.findIndex(p => p.id === respAiId);
+          if (pesanIndex !== -1) {
+            const pesanUpdate = [...prevPesan];
+            pesanUpdate[pesanIndex] = {
+              ...pesanUpdate[pesanIndex],
+              pesan: prevPesan[pesanIndex].pesan + kontenBaru
+            };
+            return pesanUpdate;
+          }
+          return prevPesan;
+        });
+      });
+      
       if (respons.status === 'success') {
-        tambahPesan(respons.respons, 'ai');
         if (percakapanKosong && percakapanId) {
           const kalimatPertama = ekstrakKalimatPertama(respons.respons);
           setJudulPercakapan(kalimatPertama);
@@ -226,7 +248,18 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
           }
         }
       } else {
-        tambahPesan('Maaf, terjadi kesalahan saat berkomunikasi dengan AI. Silakan coba lagi.', 'ai');
+        setDaftarPesan(prevPesan => {
+          const pesanIndex = prevPesan.findIndex(p => p.id === respAiId);
+          if (pesanIndex !== -1) {
+            const pesanUpdate = [...prevPesan];
+            pesanUpdate[pesanIndex] = {
+              ...pesanUpdate[pesanIndex],
+              pesan: 'Maaf, terjadi kesalahan saat berkomunikasi dengan AI. Silakan coba lagi.'
+            };
+            return pesanUpdate;
+          }
+          return prevPesan;
+        });
       }
     } catch (error) {
       console.error('Error:', error);
@@ -261,6 +294,12 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
     setSidebarVisible(false);
     return true;
   };
+
+  const buatPercakapanBaruHandler = () => {
+    buatPercakapanBaru();
+    setDaftarPesan([]);
+    return true;
+  };
   
   const onUbahModel = (modelId: string) => {
     const sukses = handleUbahModel(modelId);
@@ -286,7 +325,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
         if (hasilHapus) {
           setEksporMenuVisible(false);
           tampilkanNotifikasi('Percakapan berhasil dihapus', 'sukses');
-          buatPercakapanBaru();
+          buatPercakapanBaruHandler();
         } else {
           tampilkanNotifikasi('Gagal menghapus percakapan', 'error');
         }
@@ -303,14 +342,14 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
         visible={sidebarVisible}
         onClose={() => setSidebarVisible(false)}
         onSelectConversation={(percakapan) => pilihPercakapan(percakapan.id)}
-        onNewChat={buatPercakapanBaru}
+        onNewChat={buatPercakapanBaruHandler}
         percakapanAktif={percakapanId}
       />
       
       <div className="relative flex-1 overflow-hidden">
         <ConversationHeader 
           onToggleSidebar={alihkanSidebar}
-          onNewChat={buatPercakapanBaru}
+          onNewChat={buatPercakapanBaruHandler}
           onToggleExportMenu={() => setEksporMenuVisible(!eksporMenuVisible)}
           jumlahPesan={daftarPesan.length}
           disableExport={daftarPesan.length === 0}
@@ -357,7 +396,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
           {daftarPesan.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-4">
               <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-blue-500 to-purple-600 shadow-lg flex items-center justify-center mb-6">
-                <span className="text-white text-2xl font-bold">W</span>
+                <span className="text-white text-2xl font-bold">U</span>
               </div>
               <h2 className="text-xl font-bold mb-2 text-foreground/90">Selamat datang di UBY AI</h2>
               <p className="text-sm text-foreground/60 max-w-md">

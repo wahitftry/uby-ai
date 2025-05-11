@@ -4,7 +4,10 @@ import { getGayaResponsById, getGayaResponsSekarang } from './responseStyleServi
 
 let riwayatPesan: { role: string, content: string }[] = [];
 
-export async function kirimPesan(pesan: string): Promise<ResponseAPIType> {
+export async function kirimPesan(
+  pesan: string,
+  onUpdate?: (konten: string) => void
+): Promise<ResponseAPIType> {
   try {
     riwayatPesan.push({ role: 'user', content: pesan });
     
@@ -24,27 +27,83 @@ export async function kirimPesan(pesan: string): Promise<ResponseAPIType> {
         riwayatPesan,
         model: getModelSekarang(),
         gayaRespons: getGayaResponsSekarang(),
-        gayaResponsPetunjuk: petunjukKustom
+        gayaResponsPetunjuk: petunjukKustom,
+        stream: !!onUpdate
       })
     };
     
-    const respons = await fetch(`/api/chat`, konfigurasi);
-    
-    if (!respons.ok) {
-      throw new Error(`Error: ${respons.status}`);
-    }
+    if (onUpdate) {
+      const respons = await fetch(`/api/chat`, konfigurasi);
+      
+      if (!respons.ok) {
+        throw new Error(`Error: ${respons.status}`);
+      }
 
-    const data = await respons.json();
-    if (data.status === 'success') {
-      riwayatPesan.push({ role: 'assistant', content: data.respons });
+      const reader = respons.body?.getReader();
+      if (!reader) {
+        throw new Error('Tidak bisa membaca stream respons');
+      }
+
+      const decoder = new TextDecoder();
+      let kontenLengkap = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data:')) {
+            const data = line.slice(5).trim();
+            if (data === '[DONE]') continue;
+
+            try {
+              const jsonData = JSON.parse(data);
+              if (jsonData.tipe === 'konten') {
+                onUpdate(jsonData.konten);
+                kontenLengkap = jsonData.kontenPenuh;
+              }
+            } catch (error) {
+              console.error('Error memproses data streaming:', error);
+            }
+          }
+        }
+      }
+
+      if (kontenLengkap) {
+        riwayatPesan.push({ role: 'assistant', content: kontenLengkap });
+        return {
+          respons: kontenLengkap,
+          status: 'success',
+          kode: 200
+        };
+      }
+
+      return {
+        respons: 'Tidak ada respons dari AI',
+        status: 'error',
+        kode: 500
+      };
+    } else {
+      const respons = await fetch(`/api/chat`, konfigurasi);
+      
+      if (!respons.ok) {
+        throw new Error(`Error: ${respons.status}`);
+      }
+
+      const data = await respons.json();
+      if (data.status === 'success') {
+        riwayatPesan.push({ role: 'assistant', content: data.respons });
+      }
+      
+      return {
+        respons: data.respons || data.message || 'Tidak ada respons dari AI',
+        status: 'success',
+        kode: respons.status
+      };
     }
-    
-    return {
-      respons: data.respons || data.message || 'Tidak ada respons dari AI',
-      status: 'success',
-      kode: respons.status
-    };
-    
   } catch (error) {
     console.error('Error mengirim pesan:', error);
     return {
