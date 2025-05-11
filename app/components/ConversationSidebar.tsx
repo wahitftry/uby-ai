@@ -5,7 +5,6 @@ import {
   hapusPercakapan, 
   toggleBookmarkPercakapan, 
   getDaftarPercakapanBookmark, 
-  cekPercakapanTerenkripsi,
   cariPercakapanLanjutan,
   SearchFilter,
   daftarModelAI
@@ -18,7 +17,6 @@ interface ConversationSidebarProps {
   onSelectConversation: (percakapan: PercakapanType) => void;
   onNewChat: () => void;
   percakapanAktif: string | null;
-  onOpenEncryptedConversation?: (id: string) => boolean;
 }
 
 export default function ConversationSidebar({
@@ -27,12 +25,10 @@ export default function ConversationSidebar({
   onSelectConversation,
   onNewChat,
   percakapanAktif,
-  onOpenEncryptedConversation
 }: ConversationSidebarProps) {
   const [daftarPercakapan, setDaftarPercakapan] = useState<DaftarPercakapanType>([]);
   const [pencarian, setPencarian] = useState('');
   const [tampilkanBookmark, setTampilkanBookmark] = useState<boolean>(false); 
-  const [percakapanTerenkripsi, setPercakapanTerenkripsi] = useState<{[key: string]: boolean}>({});
   const [pencarianLanjutanVisible, setPencarianLanjutanVisible] = useState<boolean>(false);
   const [filterAktif, setFilterAktif] = useState<SearchFilter | null>(null);
   
@@ -41,6 +37,7 @@ export default function ConversationSidebar({
       muatPercakapan();
     }
   }, [visible, tampilkanBookmark, percakapanAktif]);
+
   const muatPercakapan = () => {
     let percakapanList: DaftarPercakapanType = [];
     
@@ -53,14 +50,9 @@ export default function ConversationSidebar({
     }
     
     setDaftarPercakapan(percakapanList);
-    
-    const encryptedStatus: {[key: string]: boolean} = {};
-    percakapanList.forEach(percakapan => {
-      encryptedStatus[percakapan.id] = percakapan.terenkripsi || false;
-    });
-    setPercakapanTerenkripsi(encryptedStatus);
   };
-    const handleHapusPercakapan = (id: string, e: React.MouseEvent) => {
+
+  const handleHapusPercakapan = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     
     if (window.confirm('Apakah Anda yakin ingin menghapus percakapan ini?')) {
@@ -278,40 +270,16 @@ export default function ConversationSidebar({
                 <div
                   className="px-4 py-3 cursor-pointer"
                   onClick={() => {
-                    if (percakapan.terenkripsi && onOpenEncryptedConversation) {
-                      const berhasil = onOpenEncryptedConversation(percakapan.id);
-                      if (berhasil) {
-                        onClose();
-                      }
-                    } else {
-                      onSelectConversation(percakapan);
-                    }
+                    onSelectConversation(percakapan);
                   }}
                 >
                   <div className="flex justify-between items-start">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center">
+                    <div className="flex-1 min-w-0">                      <div className="flex items-center">
                         <h3 className="text-sm font-medium truncate mr-2">
                           {percakapan.judul}
                         </h3>
                         <div className="flex">
-                          {percakapan.terenkripsi && (
-                            <span className="text-amber-400 mr-1" title="Percakapan terenkripsi">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                              </svg>
-                            </span>
-                          )}
-                          {percakapan.privateMode && (
-                            <span className="text-blue-400" title="Mode Privasi">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M3 3l18 18"></path>
-                              </svg>
-                            </span>
-                          )}
+                          {/* Mode Privasi telah dihapus */}
                         </div>
                       </div>
                       <p className="text-xs text-white/40 truncate mt-1">

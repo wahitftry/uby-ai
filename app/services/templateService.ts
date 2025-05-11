@@ -5,7 +5,15 @@ if (typeof window !== 'undefined') {
   try {
     const templateString = localStorage.getItem('wahit_template_prompt');
     if (templateString) {
-      daftarTemplatePrompt = JSON.parse(templateString);
+      try {
+        daftarTemplatePrompt = JSON.parse(templateString);
+        if (!Array.isArray(daftarTemplatePrompt)) {
+          throw new Error('Data template prompt tidak valid');
+        }
+      } catch (parseError) {
+        console.error('Gagal memproses data template prompt:', parseError);
+        daftarTemplatePrompt = [];
+      }
     } else {
       daftarTemplatePrompt = [
         {

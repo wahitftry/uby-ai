@@ -12,14 +12,11 @@ export type PercakapanType = {
   judul: string;
   tanggalDibuat: number;
   terakhirDiubah: number;
-  pesanPertama?: string;
-  model: string;
+  pesanPertama?: string;  model: string;
   gayaRespons?: string;
   pesan: DaftarPesanType;
   dibookmark?: boolean;
-  terenkripsi?: boolean;
-  requireAuth?: boolean;
-  privateMode?: boolean;
+  privateMode?: boolean; // Fitur ini telah dihapus tapi tipe dipertahankan untuk kompatibilitas
 };
 
 export type DaftarPercakapanType = PercakapanType[];

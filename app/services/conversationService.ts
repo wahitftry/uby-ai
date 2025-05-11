@@ -1,11 +1,8 @@
 import { PercakapanType, DaftarPercakapanType, DaftarPesanType } from '../types/chat';
 import { getModelSekarang } from './modelService';
 import { getGayaResponsSekarang } from './responseStyleService';
-import { getModePrivasi, enkripsiPercakapan } from './securityService';
 
 let percakapanAktif: string | null = null;
-let kunciEnkripsi: string | null = null;
-let isAuthenticated: boolean = false;
 
 if (typeof window !== 'undefined') {
   const percakapanAktifTersimpan = localStorage.getItem('wahit_percakapan_aktif');
@@ -59,25 +56,20 @@ export function simpanPercakapan(id: string, judul: string, pesan: DaftarPesanTy
       gayaRespons: getGayaResponsSekarang(),
       pesan: [...pesanValid],
       dibookmark: indexPercakapan >= 0 && daftarPercakapan[indexPercakapan].dibookmark ? true : false,
-      privateMode: getModePrivasi() && !percakapanLama?.privateMode ? getModePrivasi() : percakapanLama?.privateMode
     };
-    if (!getModePrivasi() || !percakapan.privateMode) {
-      let percakapanToSave = { ...percakapan };
-      if (kunciEnkripsi && isAuthenticated) {
-        percakapanToSave = enkripsiPercakapan(percakapanToSave, kunciEnkripsi);
-      }
 
-      if (indexPercakapan >= 0) {
-        daftarPercakapan[indexPercakapan] = percakapanToSave;
-      } else {
-        daftarPercakapan.unshift(percakapanToSave);
-      }
+    let percakapanToSave = { ...percakapan };
+    
+    if (indexPercakapan >= 0) {
+      daftarPercakapan[indexPercakapan] = percakapanToSave;
+    } else {
+      daftarPercakapan.unshift(percakapanToSave);
+    }
 
-      try {
-        localStorage.setItem('wahit_percakapan', JSON.stringify(daftarPercakapan));
-      } catch (storageError) {
-        console.error('Error menyimpan ke localStorage:', storageError);
-      }
+    try {
+      localStorage.setItem('wahit_percakapan', JSON.stringify(daftarPercakapan));
+    } catch (storageError) {
+      console.error('Error menyimpan ke localStorage:', storageError);
     }
 
     setPercakapanAktif(id);
@@ -108,7 +100,9 @@ export function getDaftarPercakapan(): DaftarPercakapanType {
     }
     
     const daftarPercakapanString = localStorage.getItem('wahit_percakapan');
-    if (!daftarPercakapanString) return [];
+    if (!daftarPercakapanString) {
+      return [];
+    }
     
     return JSON.parse(daftarPercakapanString);
   } catch (error) {

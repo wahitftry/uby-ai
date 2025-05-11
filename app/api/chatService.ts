@@ -25,15 +25,6 @@ import {
   type SearchFilter
 } from '../services/conversationService';
 import {
-  setKunciEnkripsi,
-  getIsAuthenticated,
-  setModePrivasi,
-  getModePrivasi,
-  enkripsiPercakapan,
-  dekripsiPercakapan,
-  cekPercakapanTerenkripsi
-} from '../services/securityService';
-import {
   getDaftarTemplatePrompt,
   simpanTemplatePrompt,
   hapusTemplatePrompt
@@ -70,13 +61,6 @@ export {
   getDaftarPercakapanBookmark,
   cariPercakapanLanjutan,
   editJudulPercakapan,
-  setKunciEnkripsi,
-  getIsAuthenticated,
-  setModePrivasi,
-  getModePrivasi,
-  enkripsiPercakapan,
-  dekripsiPercakapan,
-  cekPercakapanTerenkripsi,
   getDaftarTemplatePrompt,
   simpanTemplatePrompt,
   hapusTemplatePrompt,

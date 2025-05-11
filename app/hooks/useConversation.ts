@@ -32,14 +32,11 @@ export const useConversation = () => {
     return berhasil;
   };
 
-  const handlePilihPercakapan = (percakapan: PercakapanType, isEnkripsi: boolean, kunciEnkripsi: string | null = null) => {
-    if (!isEnkripsi) {
-      setPercakapanId(percakapan.id);
-      setJudulPercakapan(percakapan.judul);
-      setPercakapanAktif(percakapan.id);
-      return true;
-    }
-    return false;
+  const handlePilihPercakapan = (percakapan: PercakapanType) => {
+    setPercakapanId(percakapan.id);
+    setJudulPercakapan(percakapan.judul);
+    setPercakapanAktif(percakapan.id);
+    return true;
   };
 
   const handleHapusPercakapan = (idPercakapan: string) => {

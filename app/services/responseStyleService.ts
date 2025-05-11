@@ -41,7 +41,15 @@ if (typeof window !== 'undefined') {
   try {
     const gayaResponsKustomString = localStorage.getItem('wahit_gaya_respons_kustom');
     if (gayaResponsKustomString) {
-      daftarGayaResponsKustom = JSON.parse(gayaResponsKustomString);
+      try {
+        daftarGayaResponsKustom = JSON.parse(gayaResponsKustomString);
+        if (!Array.isArray(daftarGayaResponsKustom)) {
+          throw new Error('Data gaya respons kustom tidak valid');
+        }
+      } catch (parseError) {
+        console.error('Gagal memproses data gaya respons kustom:', parseError);
+        daftarGayaResponsKustom = [];
+      }
     }
   } catch (e) {
     console.error('Error loading custom response styles:', e);

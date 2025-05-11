@@ -9,21 +9,17 @@ import {
   kirimPesan,
   daftarModelAI,
   simpanPercakapan,
-  cekPercakapanTerenkripsi,
-  dekripsiPercakapan,
   getDaftarGayaResponsGabungan,
 } from '../api/chatService';
 
 import { useChat } from '../hooks/useChat';
 import { useConversation } from '../hooks/useConversation';
-import { useEncryption } from '../hooks/useEncryption';
 import { useUIState } from '../hooks/useUIState';
 import { useAIModel } from '../hooks/useAIModel';
 
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import ConversationSidebar from './ConversationSidebar';
-import EncryptionManager from './EncryptionManager';
 import ConversationHeader from './ConversationHeader';
 import ConversationOptions from './ConversationOptions';
 import { TemplatePromptType, CodeSnippetType } from '../types/chat';
@@ -61,20 +57,6 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
     ekstrakKalimatPertama,
     setSedangMengirim
   } = useChat(percakapanId, judulPercakapan, setPercakapanId, setJudulPercakapan);
-  
-  const {
-    kunciEnkripsi,
-    isAuthenticated,
-    modePrivasi,
-    showEncryptionAlert,
-    setShowEncryptionAlert,
-    selectedEncryptedConversation,
-    setSelectedEncryptedConversation,
-    handleLogin,
-    handleLogout,
-    toggleModePrivasi,
-    bukaPercakapanTerenkripsi
-  } = useEncryption();
   
   const {
     sidebarVisible,
@@ -173,13 +155,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
       if (idTersimpan) {
         const percakapan = getPercakapan(idTersimpan);
         if (percakapan) {
-          if (percakapan.terenkripsi && kunciEnkripsi) {
-            const percakapanDekripsi = dekripsiPercakapan(percakapan, kunciEnkripsi);
-            setDaftarPesan(percakapanDekripsi.pesan || []);
-          } else {
-            setDaftarPesan(percakapan.pesan || []);
-          }
-          
+          setDaftarPesan(percakapan.pesan || []);
           setModelTerpilih(percakapan.model || modelTerpilih);
           setPercakapanId(idTersimpan);
           setJudulPercakapan(percakapan.judul || 'Percakapan');
@@ -216,7 +192,6 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
       try {
         simpanPercakapan(percakapanId, judulPercakapan || '', daftarPesan);
         setPercakapanAktif(percakapanId);
-        console.log('Percakapan tersimpan dengan ID:', percakapanId);
       } catch (error) {
         console.error('Error saat menyimpan percakapan:', error);
       }
@@ -269,77 +244,22 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
     }
   };
   
-  const handleBukaPercakapanTerenkripsi = (id: string) => {
+  const pilihPercakapan = (id: string) => {
     const percakapan = getPercakapan(id);
     if (!percakapan) return false;
     
-    if (kunciEnkripsi) {
-      const { sukses, data } = bukaPercakapanTerenkripsi(percakapan, kunciEnkripsi);
-      
-      if (sukses && data) {
-        setDaftarPesan(data.pesan || []);
-        setModelTerpilih(data.model || modelTerpilih);
-        setPercakapanId(id);
-        setJudulPercakapan(data.judul || 'Percakapan');
-        setPercakapanAktif(id);
-        tampilkanNotifikasi('Percakapan terenkripsi berhasil dibuka', 'sukses');
-        return true;
-      }
+    setDaftarPesan(percakapan.pesan || []);
+    setModelTerpilih(percakapan.model || modelTerpilih);
+    setPercakapanId(id);
+    setJudulPercakapan(percakapan.judul || 'Percakapan');
+    setPercakapanAktif(id);
+    
+    if (percakapan.gayaRespons) {
+      setGayaResponsTerpilih(percakapan.gayaRespons);
     }
     
-    setSelectedEncryptedConversation(id);
-    setShowEncryptionAlert(true);
-    return false;
-  };
-  
-  const handleUnlockEncryptedConversation = (kunci: string) => {
-    if (selectedEncryptedConversation) {
-      const percakapan = getPercakapan(selectedEncryptedConversation);
-      if (percakapan) {
-        const { sukses, data } = bukaPercakapanTerenkripsi(percakapan, kunci);
-        
-        if (sukses && data) {
-          setDaftarPesan(data.pesan || []);
-          setModelTerpilih(data.model || modelTerpilih);
-          setPercakapanId(selectedEncryptedConversation);
-          setJudulPercakapan(data.judul || 'Percakapan');
-          setPercakapanAktif(selectedEncryptedConversation);
-          setShowEncryptionAlert(false);
-          setSelectedEncryptedConversation(null);
-          
-          handleLogin(kunci);
-          
-          tampilkanNotifikasi('Percakapan terenkripsi berhasil dibuka', 'sukses');
-          return true;
-        } else {
-          tampilkanNotifikasi('Kunci yang Anda masukkan salah', 'error');
-          return false;
-        }
-      }
-    }
-    return false;
-  };
-  
-  const pilihPercakapan = (id: string) => {
-    const percakapan = getPercakapan(id);
-    if (!percakapan) return;
-    
-    if (percakapan.terenkripsi) {
-      return handleBukaPercakapanTerenkripsi(id);
-    } else {
-      setDaftarPesan(percakapan.pesan || []);
-      setModelTerpilih(percakapan.model || modelTerpilih);
-      setPercakapanId(id);
-      setJudulPercakapan(percakapan.judul || 'Percakapan');
-      setPercakapanAktif(id);
-      
-      if (percakapan.gayaRespons) {
-        setGayaResponsTerpilih(percakapan.gayaRespons);
-      }
-      
-      setSidebarVisible(false);
-      return true;
-    }
+    setSidebarVisible(false);
+    return true;
   };
   
   const onUbahModel = (modelId: string) => {
@@ -385,7 +305,6 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
         onSelectConversation={(percakapan) => pilihPercakapan(percakapan.id)}
         onNewChat={buatPercakapanBaru}
         percakapanAktif={percakapanId}
-        onOpenEncryptedConversation={handleBukaPercakapanTerenkripsi}
       />
       
       <div className="relative flex-1 overflow-hidden">
@@ -489,37 +408,10 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
               </div>
             </div>
           )}
-          
-          {showEncryptionAlert && (
-            <EncryptionManager
-              isAuthenticated={isAuthenticated}
-              modePrivasi={modePrivasi}
-              showEncryptionAlert={showEncryptionAlert}
-              onLogin={handleLogin}
-              onLogout={handleLogout}
-              togglePrivacyMode={toggleModePrivasi}
-              onUnlockEncryptedConversation={handleUnlockEncryptedConversation}
-              onCancelEncryptionAlert={() => {
-                setShowEncryptionAlert(false);
-                setSelectedEncryptedConversation(null);
-              }}
-            />
-          )}
         </div>
       </div>
       
       <div className="px-4 pt-3 pb-4 border-t border-black/5 dark:border-white/5 bg-gradient-to-b from-transparent to-background/40 backdrop-blur-sm">
-        <EncryptionManager
-          isAuthenticated={isAuthenticated}
-          modePrivasi={modePrivasi}
-          showEncryptionAlert={false}
-          onLogin={handleLogin}
-          onLogout={handleLogout}
-          togglePrivacyMode={toggleModePrivasi}
-          onUnlockEncryptedConversation={handleUnlockEncryptedConversation}
-          onCancelEncryptionAlert={() => {}}
-        />
-        
         <ChatInput 
           mengirimPesan={(pesan) => {
             handleKirimPesan(pesan);

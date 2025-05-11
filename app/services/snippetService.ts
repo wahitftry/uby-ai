@@ -5,7 +5,15 @@ if (typeof window !== 'undefined') {
   try {
     const codeSnippetString = localStorage.getItem('wahit_code_snippet');
     if (codeSnippetString) {
-      daftarCodeSnippet = JSON.parse(codeSnippetString);
+      try {
+        daftarCodeSnippet = JSON.parse(codeSnippetString);
+        if (!Array.isArray(daftarCodeSnippet)) {
+          throw new Error('Data code snippet tidak valid');
+        }
+      } catch (parseError) {
+        console.error('Gagal memproses data code snippet:', parseError);
+        daftarCodeSnippet = [];
+      }
     }
   } catch (e) {
     console.error('Error loading code snippets:', e);
