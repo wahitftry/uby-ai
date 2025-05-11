@@ -35,7 +35,7 @@ const ConversationOptions: React.FC<ConversationOptionsProps> = ({
   if (!visible) return null;
   
   return (
-    <div className="absolute top-14 right-2 z-20 bg-background/95 border border-black/10 dark:border.white/10 rounded-lg shadow-lg p-3 backdrop-blur-sm w-64">
+    <div className="absolute top-14 right-2 z-20 bg-background/95 border border-white/10 rounded-lg shadow-lg p-3 backdrop-blur-sm w-64">
       <h3 className="text-sm font-medium mb-2 text-center">Opsi Percakapan</h3>
       <div className="space-y-2">
         {!editJudul ? (

@@ -15,7 +15,7 @@ const FaqItem: React.FC<FaqItemProps> = ({ pertanyaan, jawaban, nomorId }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   return (
-    <div className="border-b border-black/5 dark:border-white/5 last:border-0">
+    <div className="border-b border-white/5 last:border-0">
       <button
         className="flex w-full items-center justify-between py-5 text-left"
         onClick={() => setIsOpen(!isOpen)}
@@ -23,20 +23,21 @@ const FaqItem: React.FC<FaqItemProps> = ({ pertanyaan, jawaban, nomorId }) => {
         aria-controls={`faq-answer-${nomorId}`}
       >
         <h3 className="font-medium text-lg">{pertanyaan}</h3>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-        >
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-black/5 dark:bg-white/5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
       </button>
       
       <div 
@@ -101,11 +102,11 @@ export default function FaqPage() {
 
       <main className="container mx-auto px-6 py-12 max-w-3xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-3">Pertanyaan yang Sering Diajukan</h1>
+          <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600">Pertanyaan yang Sering Diajukan</h1>
           <p className="text-xl text-foreground/70">Jawaban untuk pertanyaan umum tentang UBY AI</p>
         </div>
 
-        <div className="bg-background/50 border border-black/5 dark:border-white/5 rounded-2xl p-6 shadow-sm backdrop-blur-sm">
+        <div className="modern-card p-6">
           {daftarFaq.map((faq, index) => (
             <FaqItem 
               key={index}
@@ -118,10 +119,14 @@ export default function FaqPage() {
 
         <div className="mt-12 text-center">
           <p className="text-foreground/70 mb-4">Tidak menemukan jawaban yang Anda cari?</p>
-          <Link href="/" className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl hover:opacity-90 transition-opacity">
-            Tanyakan kepada UBY AI
+          <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 text-white font-medium rounded-xl hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95">
+            <span>Tanyakan kepada UBY AI</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m9 18 6-6-6-6"></path>
+            </svg>
           </Link>
-        </div>      </main>
+        </div>
+      </main>
       
       <Footer />
     </div>

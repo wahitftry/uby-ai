@@ -377,7 +377,7 @@ const ChatContainer: React.FC = () => {
             
             {sedangMengirim && (
               <div className="flex items-center space-x-3 text-foreground/70 pl-4 mt-3 animate-fadeIn">
-                <div className="flex h-8 items-center rounded-full bg-black/5 dark:bg.white/5 px-3 py-1">
+                <div className="flex h-8 items-center rounded-full bg-white/5 px-3 py-1">
                   <div className="flex space-x-1 items-center">
                     <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
                     <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '200ms' }}></div>

@@ -125,10 +125,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
           mengubahModel={mengubahModel} 
           daftarModel={daftarModel} 
         />
-      </div>      <div className="flex items-center gap-2 mb-2">
+      </div>
+      
+      <div className="flex items-center gap-2 mb-2">
         <button
           onClick={() => setShowTemplateSelector(true)}
-          className="p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-foreground/60 hover:text-foreground flex items-center gap-1"
+          className="p-1.5 rounded-full hover:bg-white/5 transition-colors text-foreground/60 hover:text-foreground flex items-center gap-1"
           title="Gunakan template prompt"
           disabled={sedangMengirim}
         >
@@ -140,7 +142,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         
         <button
           onClick={() => setShowTemplateManager(true)}
-          className="p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-foreground/60 hover:text-foreground"
+          className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-foreground/60 hover:text-foreground"
           title="Kelola template prompt"
           disabled={sedangMengirim}
         >
@@ -153,7 +155,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         
         <button
           onClick={() => setShowCodeSnippetManager(true)}
-          className="p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-foreground/60 hover:text-foreground flex items-center gap-1"
+          className="p-1.5 rounded-full hover:bg-white/5 transition-colors text-foreground/60 hover:text-foreground flex items-center gap-1"
           title="Gunakan snippet kode"
           disabled={sedangMengirim}
         >
@@ -167,7 +169,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       
       <div className="relative flex items-end">
         <textarea
-          className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl p-4 pr-16 outline-none resize-none min-h-[80px] max-h-[200px] text-sm md:text-base placeholder:text-foreground/40 transition-all duration-200 focus:shadow-md focus:border-blue-500/30"
+          className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl p-4 pr-16 outline-none resize-none min-h-[80px] max-h-[200px] text-sm md:text-base placeholder:text-foreground/40 transition-all duration-300 focus:shadow-lg focus:border-blue-500/40"
           placeholder="Ketik pesan Anda di sini..."
           value={pesan}
           onChange={(e) => setPesan(e.target.value)}
@@ -181,10 +183,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
           }}
         />
         <button
-          className={`absolute bottom-3 right-3 rounded-full w-10 h-10 flex items-center justify-center transition-all duration-200 ${
+          className={`absolute bottom-3 right-3 rounded-full w-10 h-10 flex items-center justify-center transition-all duration-300 ${
             sedangMengirim || !pesan.trim()
-              ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed opacity-70' 
-              : 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:shadow-md hover:scale-105 active:scale-95'
+              ? 'bg-gray-300/50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 cursor-not-allowed' 
+              : 'bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 text-white shadow-md hover:shadow-lg hover:scale-105 active:scale-95'
           }`}
           onClick={handleKirim}
           disabled={sedangMengirim || !pesan.trim()}
@@ -201,7 +203,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
             </svg>
           )}
         </button>
-      </div>      <div className="text-xs text-center mt-2 text-foreground/40">
+      </div>
+      
+      <div className="text-xs text-center mt-2 text-foreground/40">
         Gunakan Enter untuk mengirim, Shift+Enter untuk baris baru
       </div>
       <TemplatePromptSelector

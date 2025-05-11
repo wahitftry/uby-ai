@@ -144,7 +144,7 @@ export default function ConversationSidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 w-72 bg-background/95 border-r border-black/5 dark:border-white/5 flex flex-col z-30 transition-all duration-300 ease-in-out transform ${
+      className={`fixed inset-y-0 left-0 w-72 bg-background/95 border-r border-white/5 flex flex-col z-30 transition-all duration-300 ease-in-out transform ${
         visible ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
@@ -177,7 +177,7 @@ export default function ConversationSidebar({
             {filterAktif && (
               <button 
                 onClick={resetPencarianLanjutan}
-                className="p-0.5 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors"
+                className="p-0.5 hover:bg-black/5 dark:hover:bg.white/5 rounded transition-colors"
                 title="Reset filter pencarian"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-foreground/60">
@@ -187,7 +187,7 @@ export default function ConversationSidebar({
             )}
             <button 
               onClick={() => setPencarianLanjutanVisible(true)}
-              className="p-0.5 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors"
+              className="p-0.5 hover:bg-black/5 dark:hover:bg.white/5 rounded transition-colors"
               title="Pencarian lanjutan"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`w-4 h-4 ${filterAktif ? 'text-blue-500' : 'text-foreground/60'}`}>
@@ -201,7 +201,7 @@ export default function ConversationSidebar({
           <button 
             onClick={() => setTampilkanBookmark(!tampilkanBookmark)}
             className={`text-xs flex items-center gap-1 px-2 py-1 rounded-md ${
-              tampilkanBookmark ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' : 'text-foreground/60 hover:bg-black/5 dark:hover:bg-white/5'
+              tampilkanBookmark ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' : 'text-foreground/60 hover:bg-black/5 dark:hover:bg.white/5'
             } transition-colors`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">

@@ -79,8 +79,8 @@ const GayaResponsSelector: React.FC<GayaResponsSelectorProps> = ({
         disabled={disabled}
         className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
           disabled
-            ? 'opacity-50 cursor-not-allowed bg-black/5 dark:bg-white/5'
-            : 'hover:bg-black/10 dark:hover:bg-white/10 bg-black/5 dark:bg-white/5'
+            ? 'opacity-50 cursor-not-allowed bg-white/5'
+            : 'hover:bg-white/10 bg-white/5'
         }`}
         title="Pilih gaya respons AI"
       >

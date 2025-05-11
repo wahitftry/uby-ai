@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -17,15 +17,19 @@ export const metadata: Metadata = {
   description: "Asisten AI pribadi yang membantu Anda menjawab pertanyaan, membuat konten, menganalisis data, dan banyak lagi.",
 };
 
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="id" className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-purple-500/30 dark:selection:text-purple-300`}
       >
         {children}
       </body>

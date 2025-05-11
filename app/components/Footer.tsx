@@ -2,7 +2,7 @@
 
 export default function Footer() {
   return (
-    <footer className="mt-auto py-6 text-center text-sm text-foreground/50 border-t border-black/5 dark:border-white/5 animate-fadeIn">
+    <footer className="mt-auto py-6 text-center text-sm text-foreground/50 border-t border-white/5 animate-fadeIn">
       © {new Date().getFullYear()} Wahit Fitriyanto, Amelia, Arthur, Qois - Semua hak dilindungi
     </footer>
   );

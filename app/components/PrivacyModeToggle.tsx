@@ -23,7 +23,7 @@ const PrivacyModeToggle: React.FC<PrivacyModeToggleProps> = ({
         <div className={`
           relative w-11 h-6 rounded-full 
           peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300
-          ${isPrivacyMode ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}
+          ${isPrivacyMode ? 'bg-blue-500' : 'bg-gray-600'}
           after:content-[''] after:absolute after:top-[2px] after:left-[2px]
           after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all
           ${isPrivacyMode ? 'after:translate-x-5' : ''}

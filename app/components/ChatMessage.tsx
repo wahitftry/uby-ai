@@ -17,7 +17,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ pesan }) => {
         className={`relative max-w-[85%] md:max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm transition-all duration-200 ${
           isPengguna 
             ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-tr-none' 
-            : 'bg-black/5 dark:bg-white/5 rounded-tl-none backdrop-blur-sm border border-black/5 dark:border-white/5'
+            : 'bg-white/5 rounded-tl-none backdrop-blur-sm border border-white/5'
         }`}
       >
         {isPengguna ? (

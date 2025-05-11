@@ -15,13 +15,13 @@ interface FiturAIProps {
 
 const FiturAI: React.FC<FiturAIProps> = ({ judul, deskripsi, contoh, ikon, warna }) => {
   return (
-    <div className="flex flex-col gap-4 p-6 rounded-2xl border border-black/5 dark:border-white/5 bg-background/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-all">
+    <div className="flex flex-col gap-4 p-6 rounded-2xl border border-white/5 bg-background/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 modern-card">
       <div className={`p-3 rounded-xl w-12 h-12 flex items-center justify-center ${warna}`}>
         {ikon}
       </div>
       <h3 className="text-xl font-semibold">{judul}</h3>
       <p className="text-foreground/70">{deskripsi}</p>
-      <div className="mt-2 p-3 rounded-xl bg-black/5 dark:bg-white/5 text-sm">
+      <div className="mt-2 p-3 rounded-xl bg-white/5 text-sm">
         <div className="font-medium text-xs uppercase text-foreground/50 mb-1">Contoh:</div>
         {contoh}
       </div>
@@ -30,118 +30,115 @@ const FiturAI: React.FC<FiturAIProps> = ({ judul, deskripsi, contoh, ikon, warna
 };
 
 export default function ShowcasePage() {
+  const fiturList = [
+    {
+      judul: "Penulisan Kreatif",
+      deskripsi: "Hasilkan artikel, cerita pendek, puisi, dan konten kreatif lainnya dengan berbagai gaya penulisan",
+      contoh: "Buatkan puisi tentang keindahan alam Indonesia dengan gaya romantis",
+      ikon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+        </svg>
+      ),
+      warna: "bg-gradient-to-br from-pink-500 to-rose-500 text-white",
+    },
+    {
+      judul: "Asisten Coding",
+      deskripsi: "Dapatkan bantuan dalam menulis, debugging, dan optimasi kode di berbagai bahasa pemrograman",
+      contoh: "Bagaimana cara membuat fungsi rekursif untuk menghitung bilangan Fibonacci di Python?",
+      ikon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+      ),
+      warna: "bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
+    },
+    {
+      judul: "Analisis Data",
+      deskripsi: "Ekstraksi insight, interpretasi statistik, dan visualisasi dari data kompleks",
+      contoh: "Bantu saya menginterpretasikan hasil survei kepuasan pelanggan dengan 500 responden",
+      ikon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+      ),
+      warna: "bg-gradient-to-br from-emerald-500 to-green-600 text-white",
+    },
+    {
+      judul: "Terjemahan Multibahasa",
+      deskripsi: "Terjemahkan teks antar bahasa dengan hasil yang natural dan memperhatikan konteks",
+      contoh: "Terjemahkan 'Selamat datang di Indonesia, negeri yang indah' ke Bahasa Inggris, Jepang, dan Prancis",
+      ikon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M2 12h20"></path>
+          <path d="M12 2v20"></path>
+          <path d="m4.93 4.93 14.14 14.14"></path>
+          <path d="m19.07 4.93-14.14 14.14"></path>
+        </svg>
+      ),
+      warna: "bg-gradient-to-br from-purple-500 to-violet-600 text-white",
+    },
+    {
+      judul: "Riset & Pembelajaran",
+      deskripsi: "Dapatkan informasi mendalam tentang berbagai topik untuk riset dan pembelajaran",
+      contoh: "Jelaskan penyebab dan dampak pemanasan global dengan sumber terpercaya",
+      ikon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        </svg>
+      ),
+      warna: "bg-gradient-to-br from-orange-500 to-amber-500 text-white",
+    },
+    {
+      judul: "Konsultasi Bisnis",
+      deskripsi: "Dapatkan saran, strategi, dan analisis untuk pengembangan bisnis dan entrepreneurship",
+      contoh: "Bagaimana cara meningkatkan retensi pelanggan untuk bisnis e-commerce?",
+      ikon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+        </svg>
+      ),
+      warna: "bg-gradient-to-br from-cyan-500 to-blue-500 text-white",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/95">
       <Navbar />
 
-      <main className="container mx-auto px-6 py-12 max-w-6xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-3">Kemampuan UBY AI</h1>
-          <p className="text-xl text-foreground/70 max-w-3xl mx-auto">UBY AI dapat membantu dalam berbagai tugas. Berikut adalah contoh kemampuan yang dapat dimanfaatkan.</p>
+      <main className="container mx-auto px-6 py-12">
+        <div className="text-center mb-12 max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600">Kemampuan UBY AI</h1>
+          <p className="text-xl text-foreground/70">Jelajahi berbagai fitur dan kemampuan yang dapat membantu produktivitas Anda</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FiturAI 
-            judul="Pembuatan Konten" 
-            deskripsi="Buat konten kreatif seperti cerita, artikel blog, email, dan caption media sosial." 
-            contoh='Tuliskan artikel blogpost singkat tentang "Manfaat Kopi untuk Kesehatan" dengan tone of voice yang santai.' 
-            ikon={
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m18 7 4 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9l4-2"></path>
-                <path d="M14 22v-7.5L9 9 4 14v7"></path>
-                <path d="M4 2v7.5L9 9"></path>
-                <path d="M20 2v7.5L15 9"></path>
-              </svg>
-            } 
-            warna="bg-blue-500/10 text-blue-500"
-          />
-          
-          <FiturAI 
-            judul="Penjelasan Konsep" 
-            deskripsi="Dapatkan penjelasan yang jelas tentang konsep kompleks dalam beragam bidang." 
-            contoh="Tolong jelaskan bagaimana cara kerja blockchain dalam bahasa sederhana untuk pemula." 
-            ikon={
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                <path d="M12 17h.01"></path>
-              </svg>
-            } 
-            warna="bg-green-500/10 text-green-500"
-          />
-          
-          <FiturAI 
-            judul="Bantuan Koding" 
-            deskripsi="Dapatkan bantuan untuk menulis, memahami, atau men-debug kode pemrograman." 
-            contoh={`Buatkan fungsi JavaScript untuk memvalidasi format email dengan regex.`}
-            ikon={
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="16 18 22 12 16 6"></polyline>
-                <polyline points="8 6 2 12 8 18"></polyline>
-              </svg>
-            } 
-            warna="bg-purple-500/10 text-purple-500"
-          />
-          
-          <FiturAI 
-            judul="Asisten Bahasa" 
-            deskripsi="Dapatkan bantuan dengan terjemahan, koreksi tata bahasa, dan perbaikan teks." 
-            contoh="Tolong terjemahkan teks berikut ke dalam bahasa Inggris yang formal: 'Saya akan hadir dalam rapat besok pagi.'" 
-            ikon={
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m5 8 6 6"></path>
-                <path d="m4 14 7-7"></path>
-                <path d="M2 5h12"></path>
-                <path d="M7 2h1"></path>
-                <path d="m22 22-5-5"></path>
-                <path d="M17.5 14h.5"></path>
-                <path d="M14 14V9"></path>
-                <path d="M14 17h.01"></path>
-              </svg>
-            } 
-            warna="bg-amber-500/10 text-amber-500"
-          />
-          
-          <FiturAI 
-            judul="Riset dan Analisis" 
-            deskripsi="Dapatkan bantuan untuk menganalisis data, merangkum informasi, dan mengekstrak wawasan." 
-            contoh="Berikan ringkasan singkat tentang tren terbaru dalam teknologi kecerdasan buatan pada tahun 2025." 
-            ikon={
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-              </svg>
-            } 
-            warna="bg-pink-500/10 text-pink-500"
-          />
-          
-          <FiturAI 
-            judul="Rekomendasi Kreatif" 
-            deskripsi="Dapatkan ide untuk proyek, pemasaran, branding, atau pemecahan masalah kreatif." 
-            contoh="Berikan 5 ide nama merek untuk kedai kopi lokal yang mengusung tema keberlanjutan dan kearifan lokal Indonesia." 
-            ikon={
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2 12h10"></path>
-                <path d="M9 4v16"></path>
-                <path d="m3 9 3 3-3 3"></path>
-                <path d="M14 8V6c0-1.1.9-2 2-2h4a2 2 0 0 1 2 2v12c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-2"></path>
-              </svg>
-            } 
-            warna="bg-cyan-500/10 text-cyan-500"
-          />
+          {fiturList.map((fitur, index) => (
+            <FiturAI
+              key={index}
+              judul={fitur.judul}
+              deskripsi={fitur.deskripsi}
+              contoh={fitur.contoh}
+              ikon={fitur.ikon}
+              warna={fitur.warna}
+            />
+          ))}
         </div>
 
         <div className="mt-16 text-center">
-          <h2 className="text-2xl font-semibold mb-6">Manfaatkan Konteks yang Lebih Besar</h2>
-          <div className="max-w-3xl mx-auto bg-gradient-to-r from-blue-500 to-purple-600 p-[1px] rounded-2xl">
-            <div className="bg-background rounded-2xl p-8">
-              <p className="mb-4 text-xl">UBY AI kini mendukung context window hingga 30 pesan, sehingga percakapan bisa lebih panjang dan komprehensif.</p>
-              <Link href="/" className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl hover:opacity-90 transition-opacity">
-                Coba Sekarang
-              </Link>
-            </div>
-          </div>
-        </div>      </main>
+          <h2 className="text-2xl font-bold mb-6">Siap untuk mencoba UBY AI?</h2>
+          <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 text-white font-medium rounded-xl hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95">
+            <span>Mulai Sekarang</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m9 18 6-6-6-6"></path>
+            </svg>
+          </Link>
+        </div>
+      </main>
       
       <Footer />
     </div>

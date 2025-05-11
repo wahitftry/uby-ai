@@ -62,7 +62,7 @@ const AuthManager: React.FC<AuthManagerProps> = ({ onLogin, onLogout, isAuthenti
   }
 
   return (
-    <div className="px-4 py-3 bg-background/70 backdrop-blur-sm border border-black/5 dark:border-white/5 rounded-lg shadow-sm">
+    <div className="px-4 py-3 bg-background/70 backdrop-blur-sm border border-white/5 rounded-lg shadow-sm">
       <h3 className="text-sm font-medium mb-2">Autentikasi</h3>
       
       <form onSubmit={handleSubmit} className="space-y-3">

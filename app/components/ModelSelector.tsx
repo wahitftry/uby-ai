@@ -16,7 +16,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ modelTerpilih, mengubahMo
     <div className="relative inline-block text-left">
       <button
         type="button"
-        className="inline-flex items-center gap-2 px-3 py-1.5 text-xs md:text-sm rounded-lg border border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5 text-foreground/70 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+        className="inline-flex items-center gap-2 px-3 py-1.5 text-xs md:text-sm rounded-lg border border-white/5 bg-white/5 text-foreground/70 hover:bg-white/10 transition-colors"
         onClick={() => setMenuTerbuka(!menuTerbuka)}
       >
         <span>Model: {daftarModel.find(model => model.id === modelTerpilih)?.nama || 'Default'}</span>

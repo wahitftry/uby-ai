@@ -20,7 +20,7 @@ const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({ jumlahP
       <div className="text-xs text-foreground/50 whitespace-nowrap">
         Context: {jumlahPesan}/{maksimalPesan}
       </div>
-      <div className="w-16 h-1.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+      <div className="w-16 h-1.5 rounded-full bg-white/10 overflow-hidden">
         <div 
           className={`h-full ${warna} transition-all duration-300 ease-in-out`}
           style={{ width: `${persentase}%` }}

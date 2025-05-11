@@ -46,7 +46,7 @@ const EncryptionAlert: React.FC<EncryptionAlertProps> = ({ onUnlock, onCancel })
               placeholder="Masukkan kunci enkripsi"
               value={kunci}
               onChange={(e) => setKunci(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-md bg-background border border-black/10 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-sm rounded-md bg-background border border-white/10 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
             {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
           </div>

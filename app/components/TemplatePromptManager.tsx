@@ -73,7 +73,7 @@ const TemplatePromptManager: React.FC<TemplatePromptManagerProps> = ({
     <>
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
         <div className="bg-background rounded-xl shadow-lg w-full max-w-2xl overflow-hidden">
-          <div className="p-4 border-b border-black/10 dark:border-white/10 flex justify-between items-center">
+          <div className="p-4 border-b border-white/10 flex justify-between items-center">
             <h2 className="text-lg font-semibold">Template Prompt</h2>
             <button 
               onClick={onClose}

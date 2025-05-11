@@ -57,8 +57,8 @@ const EksporPDF: React.FC<EksporPDFProps> = ({
           elemenPesan.style.backgroundColor = '#3B82F6';
           elemenPesan.style.color = 'white';
         } else {
-          elemenPesan.style.backgroundColor = '#F3F4F6';
-          elemenPesan.style.color = 'black';
+          elemenPesan.style.backgroundColor = '#1E1E1E';
+          elemenPesan.style.color = 'white';
         }
         const headerPengirim = document.createElement('div');
         headerPengirim.style.marginBottom = '5px';
