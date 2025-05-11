@@ -10,6 +10,7 @@ import {
   daftarModelAI,
   simpanPercakapan,
   getDaftarGayaResponsGabungan,
+  getModelSekarang,
 } from '../api/chatService';
 
 import { useChat } from '../hooks/useChat';
@@ -156,7 +157,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
         const percakapan = getPercakapan(idTersimpan);
         if (percakapan) {
           setDaftarPesan(percakapan.pesan || []);
-          setModelTerpilih(percakapan.model || modelTerpilih);
+          setModelTerpilih(percakapan.model || getModelSekarang());
           setPercakapanId(idTersimpan);
           setJudulPercakapan(percakapan.judul || 'Percakapan');
           
@@ -169,6 +170,8 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
         }
       }
       
+      setModelTerpilih(getModelSekarang());
+      
       const idBaru = generateId();
       setPercakapanId(idBaru);
       setPercakapanAktif(idBaru);
@@ -177,6 +180,8 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
     } catch (error) {
       console.error('Error saat memuat percakapan aktif:', error);
 
+      setModelTerpilih(getModelSekarang());
+      
       const idBaru = generateId();
       setPercakapanId(idBaru);
       setPercakapanAktif(idBaru);

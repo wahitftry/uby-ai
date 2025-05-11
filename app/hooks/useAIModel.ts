@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   getModelSekarang, 
   setModelSekarang, 
@@ -11,6 +11,9 @@ import {
 export const useAIModel = () => {
   const [modelTerpilih, setModelTerpilih] = useState<string>(getModelSekarang());
   const [gayaResponsTerpilih, setGayaResponsTerpilih] = useState<string>(getGayaResponsSekarang());
+  useEffect(() => {
+    setModelTerpilih(getModelSekarang());
+  }, []);
 
   const handleUbahModel = (modelId: string) => {
     const hasil = setModelSekarang(modelId);

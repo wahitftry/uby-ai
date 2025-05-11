@@ -1,7 +1,6 @@
 import { ModelAIType } from '../types/chat';
 
 let modelSekarang: string = 'gpt-4o';
-
 if (typeof window !== 'undefined') {
   const modelTersimpan = localStorage.getItem('wahit_model_sekarang');
   if (modelTersimpan) {
@@ -35,5 +34,5 @@ export function setModelSekarang(modelId: string) {
     }
     return { status: 'success', model: modelSekarang };
   }
-  return { status: 'error', pesan: 'Model tidak valid' };
+  return { status: 'error', pesan: 'Model tidak ditemukan' };
 }

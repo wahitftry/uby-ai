@@ -90,7 +90,7 @@ export default function Home() {
       <Navbar />
       
       <main className="flex-1 flex overflow-hidden p-4">
-        <div className="w-full max-w-4xl mx-auto rounded-2xl shadow-lg border border-black/5 dark:border-white/5 overflow-hidden backdrop-blur-sm bg-background/70">
+        <div className="w-full max-w-7xl mx-auto rounded-2xl shadow-lg border border-black/5 dark:border-white/5 overflow-hidden backdrop-blur-sm bg-background/70">
           <ChatContainer dialogCallbacks={dialogCallbacks} />
         </div>
       </main>
