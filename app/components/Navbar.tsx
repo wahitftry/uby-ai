@@ -11,7 +11,7 @@ export default function Navbar() {
       <div className="flex items-center gap-3">
         <Link href="/">
           <div className="relative h-10 w-10 overflow-hidden cursor-pointer group">
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md transition-all duration-300 group-hover:shadow-lg group-hover:scale-105">W</div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md transition-all duration-300 group-hover:shadow-lg group-hover:scale-105">U</div>
           </div>
         </Link>
         <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600">UBY AI</h1>

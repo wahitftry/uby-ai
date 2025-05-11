@@ -151,9 +151,9 @@ export default function ConversationSidebar({
       <div className="flex items-center justify-between p-4 border-b border-white/10">
         <div className="flex items-center space-x-2">
           <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center">
-            <span className="text-white text-lg font-bold">W</span>
+            <span className="text-white text-lg font-bold">U</span>
           </div>
-          <span className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Wahit AI</span>
+          <span className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">UBY AI</span>
         </div>
         
         <button 

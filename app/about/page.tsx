@@ -13,7 +13,7 @@ export default function About() {
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
             <div className="w-32 h-32 rounded-full overflow-hidden relative group">
               <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold shadow-lg transition-all duration-300 group-hover:scale-110">
-                W
+                U
               </div>
             </div>
             <div className="flex-1">

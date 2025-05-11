@@ -31,7 +31,7 @@ const ChatContainer = dynamic(() => import('./components/ChatContainer'), {
     <div className="flex items-center justify-center h-full">
       <div className="flex flex-col items-center">
         <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 animate-pulse flex items-center justify-center">
-          <span className="text-white font-bold text-xl">W</span>
+          <span className="text-white font-bold text-xl">U</span>
         </div>
         <div className="mt-4 text-foreground/70 animate-pulse">Memuat UBY AI...</div>
       </div>
