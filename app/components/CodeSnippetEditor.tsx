@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CodeSnippetType } from '../types/chat';
 
 interface CodeSnippetEditorProps {
@@ -24,7 +24,7 @@ const CodeSnippetEditor: React.FC<CodeSnippetEditorProps> = ({
       nama: '',
       deskripsi: '',
       kode: '',
-      bahasa: 'javascript',
+      bahasa: '',
       kategori: '',
       tag: [],
       createdAt: Date.now(),
@@ -35,15 +35,43 @@ const CodeSnippetEditor: React.FC<CodeSnippetEditorProps> = ({
   const [errors, setErrors] = useState<{
     nama?: string;
     kode?: string;
+    bahasa?: string;
   }>({});
   
   const [kategoriLain, setKategoriLain] = useState<string>('');
   const [tagInput, setTagInput] = useState<string>('');
+  
+  const daftarBahasa = [
+    'javascript', 'typescript', 'python', 'java', 'csharp', 'php', 'ruby', 
+    'go', 'rust', 'swift', 'kotlin', 'sql', 'html', 'css', 'bash', 'json',
+    'yaml', 'markdown', 'plaintext'
+  ];
+
+  useEffect(() => {
+    if (isOpen && snippetEdit) {
+      setSnippet(snippetEdit);
+    } else if (isOpen) {
+      setSnippet({
+        id: `snippet-${Date.now()}`,
+        nama: '',
+        deskripsi: '',
+        kode: '',
+        bahasa: '',
+        kategori: '',
+        tag: [],
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      });
+      setKategoriLain('');
+      setTagInput('');
+    }
+  }, [isOpen, snippetEdit]);
 
   const validateForm = (): boolean => {
     const newErrors: {
       nama?: string;
       kode?: string;
+      bahasa?: string;
     } = {};
 
     if (!snippet.nama.trim()) {
@@ -51,7 +79,11 @@ const CodeSnippetEditor: React.FC<CodeSnippetEditorProps> = ({
     }
 
     if (!snippet.kode.trim()) {
-      newErrors.kode = 'Kode snippet tidak boleh kosong';
+      newErrors.kode = 'Kode tidak boleh kosong';
+    }
+
+    if (!snippet.bahasa.trim()) {
+      newErrors.bahasa = 'Bahasa pemrograman harus dipilih';
     }
 
     setErrors(newErrors);
@@ -60,84 +92,64 @@ const CodeSnippetEditor: React.FC<CodeSnippetEditorProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setSnippet(prev => ({ ...prev, [name]: value, updatedAt: Date.now() }));
+    setSnippet(prev => ({ ...prev, [name]: value }));
     
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
   };
-  
-  const addTag = () => {
-    if (!tagInput.trim()) return;
-    
-    setSnippet(prev => {
-      const newTags = [...(prev.tag || [])];
-      if (!newTags.includes(tagInput.trim())) {
-        newTags.push(tagInput.trim());
-      }
-      return { ...prev, tag: newTags };
-    });
-    
-    setTagInput('');
-  };
-  
-  const removeTag = (tag: string) => {
-    setSnippet(prev => ({
-      ...prev, 
-      tag: (prev.tag || []).filter(t => t !== tag)
-    }));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    let finalSnippet = {...snippet};
+    
     if (snippet.kategori === 'lainnya' && kategoriLain) {
-      setSnippet(prev => ({ ...prev, kategori: kategoriLain }));
+      finalSnippet = { ...snippet, kategori: kategoriLain };
     }
     
     if (validateForm()) {
-      const finalSnippet = snippet.kategori === 'lainnya' && kategoriLain ? 
-        { ...snippet, kategori: kategoriLain } : snippet;
-      
       onSave(finalSnippet);
       onClose();
+    }
+  };
+  
+  const handleAddTag = () => {
+    if (tagInput.trim() && !snippet.tag?.includes(tagInput.trim())) {
+      setSnippet(prev => ({
+        ...prev,
+        tag: [...(prev.tag || []), tagInput.trim()]
+      }));
+      setTagInput('');
+    }
+  };
+  
+  const handleRemoveTag = (tagToRemove: string) => {
+    setSnippet(prev => ({
+      ...prev,
+      tag: prev.tag?.filter(tag => tag !== tagToRemove) || []
+    }));
+  };
+  
+  const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
     }
   };
 
   if (!isOpen) return null;
 
-  const languageOptions = [
-    { value: 'javascript', label: 'JavaScript' },
-    { value: 'typescript', label: 'TypeScript' },
-    { value: 'html', label: 'HTML' },
-    { value: 'css', label: 'CSS' },
-    { value: 'python', label: 'Python' },
-    { value: 'java', label: 'Java' },
-    { value: 'csharp', label: 'C#' },
-    { value: 'php', label: 'PHP' },
-    { value: 'go', label: 'Go' },
-    { value: 'rust', label: 'Rust' },
-    { value: 'ruby', label: 'Ruby' },
-    { value: 'bash', label: 'Bash/Shell' },
-    { value: 'sql', label: 'SQL' },
-    { value: 'markdown', label: 'Markdown' },
-    { value: 'json', label: 'JSON' },
-    { value: 'xml', label: 'XML' },
-    { value: 'yaml', label: 'YAML' },
-    { value: 'plaintext', label: 'Plain Text' },
-    { value: 'other', label: 'Lainnya' }
-  ];
-
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-background rounded-xl shadow-lg w-full max-w-lg overflow-hidden">
-        <div className="p-4 border-b border-white/10 flex justify-between items-center">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+      <div className="bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden backdrop-blur-md border border-black/10 dark:border-white/10">
+        <div className="p-4 border-b border-black/10 dark:border-white/10 flex justify-between items-center bg-gradient-to-r from-white/50 to-white/30 dark:from-gray-800/50 dark:to-gray-900/30">
           <h2 className="text-lg font-semibold">
-            {snippetEdit ? 'Edit Snippet Kode' : 'Buat Snippet Kode Baru'}
+            {snippetEdit ? 'Edit Snippet Kode' : 'Tambah Snippet Kode'}
           </h2>
           <button 
             onClick={onClose}
-            className="text-foreground/70 hover:text-foreground transition-colors"
+            className="text-foreground/70 hover:text-foreground transition-colors p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -145,56 +157,47 @@ const CodeSnippetEditor: React.FC<CodeSnippetEditorProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Nama Snippet</label>
+            <label className="block text-sm font-medium mb-1.5">Nama Snippet</label>
             <input
               type="text"
               name="nama"
               value={snippet.nama}
               onChange={handleChange}
-              className={`w-full bg-black/5 dark:bg-white/5 border ${
-                errors.nama ? 'border-red-500' : 'border-black/5 dark:border-white/10'
-              } rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500`}
-              placeholder="cth. React Component, Express Route, dll"
+              className={`w-full bg-white dark:bg-gray-800 border ${
+                errors.nama ? 'border-red-500 ring-1 ring-red-500' : 'border-black/10 dark:border-white/20'
+              } rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm`}
+              placeholder="cth. Function JWT, Setup Express, dll"
             />
-            {errors.nama && <p className="text-red-500 text-xs mt-1">{errors.nama}</p>}
+            {errors.nama && <p className="text-red-500 text-sm mt-1.5 flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+              </svg>
+              {errors.nama}
+            </p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Deskripsi (Opsional)</label>
+            <label className="block text-sm font-medium mb-1.5">Deskripsi (Opsional)</label>
             <input
               type="text"
               name="deskripsi"
               value={snippet.deskripsi || ''}
               onChange={handleChange}
-              className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="cth. Template komponen React dengan TypeScript"
+              className="w-full bg-white dark:bg-gray-800 border border-black/10 dark:border-white/20 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm"
+              placeholder="cth. Function untuk membuat JWT token dengan expiry time"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Bahasa</label>
-              <select
-                name="bahasa"
-                value={snippet.bahasa}
-                onChange={handleChange}
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                {languageOptions.map((lang) => (
-                  <option key={lang.value} value={lang.value}>{lang.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Kategori</label>
+              <label className="block text-sm font-medium mb-1.5">Kategori</label>
               <select
                 name="kategori"
                 value={snippet.kategori}
                 onChange={handleChange}
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-white dark:bg-gray-800 border border-black/10 dark:border-white/20 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm"
               >
                 <option value="">Pilih Kategori</option>
                 {kategoriTersedia.map((kategori) => (
@@ -205,33 +208,57 @@ const CodeSnippetEditor: React.FC<CodeSnippetEditorProps> = ({
             </div>
 
             {snippet.kategori === 'lainnya' && (
-              <div className="col-span-2">
-                <label className="block text-sm font-medium mb-1">Kategori Baru</label>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Kategori Baru</label>
                 <input
                   type="text"
                   value={kategoriLain}
                   onChange={(e) => setKategoriLain(e.target.value)}
-                  className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full bg-white dark:bg-gray-800 border border-black/10 dark:border-white/20 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm"
                   placeholder="Masukkan kategori baru"
                 />
               </div>
             )}
           </div>
-
+          
           <div>
-            <label className="block text-sm font-medium mb-1">Tag (Opsional)</label>
-            <div className="flex gap-2 mb-2">
+            <label className="block text-sm font-medium mb-1.5">Bahasa Pemrograman</label>
+            <select
+              name="bahasa"
+              value={snippet.bahasa}
+              onChange={handleChange}
+              className={`w-full bg-white dark:bg-gray-800 border ${
+                errors.bahasa ? 'border-red-500 ring-1 ring-red-500' : 'border-black/10 dark:border-white/20'
+              } rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm`}
+            >
+              <option value="">Pilih Bahasa</option>
+              {daftarBahasa.map((bahasa) => (
+                <option key={bahasa} value={bahasa}>{bahasa.charAt(0).toUpperCase() + bahasa.slice(1)}</option>
+              ))}
+            </select>
+            {errors.bahasa && <p className="text-red-500 text-sm mt-1.5 flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+              </svg>
+              {errors.bahasa}
+            </p>}
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1.5">Tag (Opsional)</label>
+            <div className="flex">
               <input
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                className="flex-1 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Tambahkan tag..."
+                onKeyDown={handleTagInputKeyDown}
+                className="flex-1 bg-white dark:bg-gray-800 border border-black/10 dark:border-white/20 rounded-l-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm"
+                placeholder="Tambahkan tag"
               />
               <button
                 type="button"
-                onClick={addTag}
-                className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                onClick={handleAddTag}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-r-xl text-sm font-medium transition-colors"
               >
                 Tambah
               </button>
@@ -239,13 +266,16 @@ const CodeSnippetEditor: React.FC<CodeSnippetEditorProps> = ({
             
             {snippet.tag && snippet.tag.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
-                {snippet.tag.map(tag => (
-                  <span key={tag} className="inline-flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+                {snippet.tag.map((tag) => (
+                  <span 
+                    key={tag} 
+                    className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full text-xs"
+                  >
                     {tag}
                     <button
                       type="button"
-                      onClick={() => removeTag(tag)}
-                      className="ml-1.5 text-blue-500 hover:text-blue-700"
+                      onClick={() => handleRemoveTag(tag)}
+                      className="text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
                         <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
@@ -255,34 +285,43 @@ const CodeSnippetEditor: React.FC<CodeSnippetEditorProps> = ({
                 ))}
               </div>
             )}
+            
+            <p className="text-xs text-foreground/60 mt-1.5">
+              Tekan Enter atau klik Tambah untuk menambahkan tag
+            </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Kode</label>
+            <label className="block text-sm font-medium mb-1.5">Kode</label>
             <textarea
               name="kode"
               value={snippet.kode}
               onChange={handleChange}
-              rows={12}
-              className={`w-full bg-black/5 dark:bg-white/5 border ${
-                errors.kode ? 'border-red-500' : 'border-black/5 dark:border-white/10'
-              } rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 font-mono`}
-              placeholder="// Masukkan kode snippet di sini..."
+              rows={8}
+              className={`w-full bg-white dark:bg-gray-800 border ${
+                errors.kode ? 'border-red-500 ring-1 ring-red-500' : 'border-black/10 dark:border-white/20'
+              } rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm font-mono`}
+              placeholder="Masukkan kode snippet di sini"
             />
-            {errors.kode && <p className="text-red-500 text-xs mt-1">{errors.kode}</p>}
+            {errors.kode && <p className="text-red-500 text-sm mt-1.5 flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+              </svg>
+              {errors.kode}
+            </p>}
           </div>
 
-          <div className="pt-2 flex justify-end space-x-2">
+          <div className="pt-3 flex justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm border border-black/10 dark:border-white/10 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              className="px-5 py-2.5 text-sm border border-black/10 dark:border-white/10 rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="px-5 py-2.5 text-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl transition-colors font-medium shadow-sm hover:shadow-md"
             >
               Simpan
             </button>
