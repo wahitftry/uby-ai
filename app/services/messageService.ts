@@ -14,9 +14,9 @@ export async function kirimPesan(
     if (riwayatPesan.length > 30) {
       riwayatPesan = riwayatPesan.slice(-30);
     }
+    
     const gayaRespons = getGayaResponsById(getGayaResponsSekarang());
     const petunjukKustom = gayaRespons?.petunjuk || '';
-    
     const konfigurasi = {
       method: 'POST',
       headers: {
@@ -34,7 +34,6 @@ export async function kirimPesan(
     
     if (onUpdate) {
       const respons = await fetch(`/api/chat`, konfigurasi);
-      
       if (!respons.ok) {
         throw new Error(`Error: ${respons.status}`);
       }

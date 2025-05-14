@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     
     let petunjukSistem = 'Kamu adalah asisten AI yang membantu pengguna. Berikan jawaban yang sopan, akurat, dan bermanfaat.';
     
-    if (gayaResponsPetunjuk) {
+    if (gayaResponsPetunjuk && gayaResponsPetunjuk.trim() !== '') {
       petunjukSistem += ' ' + gayaResponsPetunjuk;
     } else {
       switch(gayaRespons) {
@@ -26,6 +26,8 @@ export async function POST(request: Request) {
         case 'pendek':
           petunjukSistem += ' Berikan jawaban yang singkat, padat dan jelas. Langsung ke poin utama tanpa elaborasi yang berlebihan.';
           break;
+        default:
+          petunjukSistem += ' Gunakan bahasa yang santai dan ramah, seperti berbicara dengan teman.';
       }
     }
     
@@ -40,18 +42,16 @@ export async function POST(request: Request) {
       }
     ];    
     
-    if (data.riwayatPesan && data.riwayatPesan.length === 0) {
+    if (data.riwayatPesan && data.riwayatPesan.length > 0) {
+      const userMessages = data.riwayatPesan.filter((msg: { role: string, content: string }) => msg.role !== 'system');
       messages.unshift({
         role: 'system',
         content: petunjukSistem
       });
-      messages.push({
-        role: 'user',
-        content: data.pesan
-      });
+      messages.splice(1, 0, ...userMessages);
     }
-    const streamMode = data.stream !== false;
     
+    const streamMode = data.stream !== false;
     const konfigurasiAPI = {
       method: 'POST',
       headers: {

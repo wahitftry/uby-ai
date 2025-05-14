@@ -11,6 +11,7 @@ import {
   simpanPercakapan,
   getDaftarGayaResponsGabungan,
   getModelSekarang,
+  resetRiwayatPesan,
 } from '../api/chatService';
 
 import { useChat } from '../hooks/useChat';
@@ -160,7 +161,6 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
           setModelTerpilih(percakapan.model || getModelSekarang());
           setPercakapanId(idTersimpan);
           setJudulPercakapan(percakapan.judul || 'Percakapan');
-          
           if (percakapan.gayaRespons) {
             setGayaResponsTerpilih(percakapan.gayaRespons);
           }
@@ -319,6 +319,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ dialogCallbacks }) => {
       const daftarGaya = getDaftarGayaResponsGabungan();
       const gayaNama = daftarGaya.find((g) => g.id === gayaId)?.nama || gayaId;
       tambahPesan(`Gaya respons AI diubah ke "${gayaNama}"`, 'ai');
+      resetRiwayatPesan();
     }
   };
   
